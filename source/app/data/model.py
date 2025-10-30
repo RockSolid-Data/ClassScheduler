@@ -1,4 +1,4 @@
-from librepy.peewee.connection.db_connection import get_database_connection
+from peewee.db_model.base_model import BaseModel
 from librepy.peewee.peewee import (
     Model,
     AutoField,
@@ -13,12 +13,6 @@ from librepy.peewee.peewee import (
     DecimalField,
     BigIntegerField,
 )
-
-
-
-class BaseModel(Model):
-    class Meta:
-        database =  get_database_connection()
 
 
 class Teacher(BaseModel):
