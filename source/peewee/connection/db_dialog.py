@@ -416,25 +416,9 @@ class DBDialog(dialog.DialogBase):
             else:
                 self.logger.info("Successfully refreshed database connection with new settings")
                 
-            from librepy.peewee.connection.db_connection import get_database_connection
-            database = get_database_connection()
-
-            database.connect()
-            
-            # Run migrations on the newly selected database to ensure schema is up to date
-            from librepy.peewee.db_migrations.migration_manager import run_all_migrations
-            migration_success = run_all_migrations(self.logger)
-            if not migration_success:
-                self.logger.error("Database migration failed after selecting database")
-                MsgBox("Database migration failed. The application may need to be restarted.")
-                # Do not close dialog so user can adjust settings
-                return
-            
+            # Do not run migrations here; bootstrap will handle applying them
             self.logger.info(f"Configuration saved to {self.db_config_manager.config_path}")
             self.config_saved = True
-
-            # Connection closed by migration manager
-            
             self.close()
         except Exception as e:
             self.logger.error(f"Error saving configuration: {str(e)}")
