@@ -73,7 +73,7 @@ class App(object):
             self.active_screen = None
 
         self.sidebar_width = self.sidebar_manager.get_width() if hasattr(self, 'sidebar_manager') and self.sidebar_manager is not None else 0
-
+        self.create_menubar_manager()
         try:
             actual_ps = self.frame_manager.window.getPosSize()
             self.ps = (self.ps[0], self.ps[1], actual_ps.Width, actual_ps.Height)
