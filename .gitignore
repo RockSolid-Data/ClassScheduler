@@ -28,3 +28,5 @@ wheels/
 
 .cursorignore
 .~lock*
+/.idea/
+*.ods
