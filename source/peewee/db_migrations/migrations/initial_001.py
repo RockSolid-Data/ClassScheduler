@@ -1,16 +1,14 @@
 # MIGRATION_NAME = "001_initial"
 
 from librepy.pybrex.values import APP_NAME
-from librepy.app.data.model import (
-    TrainingSession,
-    Teacher
-)
 
 MIGRATION_NAME = "001_initial"
 APPLICATION_SCHEMA = APP_NAME
 
 def run_migration(database, logger):
     try:
+        from librepy.app.data.model import TrainingSession, Teacher
+
         logger.info(f"Running migration: {MIGRATION_NAME}")
 
         # Ensure application schema exists and is in the search_path for this session

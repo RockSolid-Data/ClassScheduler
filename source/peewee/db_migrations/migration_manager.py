@@ -11,7 +11,6 @@ Key responsibilities:
 All migrations and tracking metadata are constrained to the application schema.
 """
 
-from librepy.peewee.connection.db_connection import get_database_connection
 from librepy.peewee.db_migrations.migrations import initial_001
 from librepy.pybrex.values import APP_NAME
 # Add the rest of the migration imports here
@@ -119,6 +118,7 @@ def run_all_migrations(logger, database=None):
         # Use provided database or fall back to default connection
         if database is None:
             logger.info("Getting default database connection")
+            from librepy.peewee.connection.db_connection import get_database_connection
             database = get_database_connection()
             close_db = True
         else:

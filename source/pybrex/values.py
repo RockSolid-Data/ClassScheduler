@@ -13,7 +13,7 @@ from configparser import ConfigParser
 PYBREX_NAME = 'Pybrex'
 PYBREX_VERSION = '1.0'
 PYBREX_ID = 'pybrex'
-APP_NAME = 'class_scheduler'
+APP_NAME = 'app_class_scheduler'
 
 
 def get_dir_path(path):

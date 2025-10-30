@@ -5,7 +5,6 @@ Bootstrap utilities to guarantee a working database connection before the UI loa
 import os
 from librepy.utils.db_config_manager import DatabaseConfigManager
 from librepy.peewee.connection import test_connection
-from librepy.peewee.db_migrations.migration_manager import run_all_migrations
 from librepy.peewee.connection.db_connection import reinitialize_database_connection, get_database_connection
 from librepy.pybrex.msgbox import msgbox
 
@@ -33,6 +32,7 @@ def ensure_database_ready(logger):
             reinitialize_database_connection()
             db = get_database_connection()
             logger.info("Applying database migrations")
+            from librepy.peewee.db_migrations.migration_manager import run_all_migrations
             run_all_migrations(logger, db)
             logger.info("Database is ready and up-to-date")
             return True

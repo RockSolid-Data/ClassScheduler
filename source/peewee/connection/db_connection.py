@@ -49,13 +49,13 @@ def get_database_connection(force_reinitialize: bool = False):
 def _bind_models_to_db(db):
     logger.debug("Binding models to database")
     import inspect
-    from librepy.peewee.db_model import model as model_module
+    from librepy.app.data import model as app_models
     from librepy.peewee.db_model.base_model import BaseModel
 
     # Dynamically find all classes that inherit from BaseModel
     models = []
-    for name, obj in inspect.getmembers(model_module, inspect.isclass):
-        if obj != BaseModel and issubclass(obj, BaseModel):
+    for name, obj in inspect.getmembers(app_models, inspect.isclass):
+        if obj is not BaseModel and issubclass(obj, BaseModel):
             models.append(obj)
             logger.debug(f"Found model class: {obj.__name__}")
 
@@ -74,9 +74,3 @@ def reinitialize_database_connection():
     db = get_database_connection(force_reinitialize=True)
     _bind_models_to_db(db)
     return db
-
-
-try:
-    get_database_connection()
-except Exception:
-    pass 
