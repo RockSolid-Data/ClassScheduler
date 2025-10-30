@@ -146,28 +146,6 @@ class Calendar(ctr_container.Container):
             FontName='Sans-serif'
         )
         
-        # Crew dropdown
-        self.lbl_crew = self.add_label(
-            "lblCrew",
-            40, 60, 50, 25,
-            Label="Crew",
-            FontHeight=12,
-            FontWeight=150
-        )
-        
-        self.crew_dropdown = self.add_combo(
-            "cmbCrew",
-            40, 95, 250, 30,
-            BackgroundColor=0xFFFFFF,
-            FontHeight=12,
-            Dropdown=True
-        )
-        
-        # Add the listener manually since add_combo doesn't handle callbacks
-        self.listeners.add_item_listener(self.crew_dropdown, self.on_crew_changed)
-        
-        # Set crew dropdown items from database
-        self.update_crew_dropdown()
         
         # Top row buttons - arranged horizontally
         top_button_width = 140
@@ -208,11 +186,10 @@ class Calendar(ctr_container.Container):
             Border=6
         )
         
-        # Navigation controls - positioned inline with crew combobox
-        nav_y = 95  # Align with crew combobox
-        nav_height = 30  # Match crew combobox height
+        nav_y = 95
+        nav_height = 30
         nav_button_width = 40
-        nav_start_x = 320  # Position to the right of crew combobox
+        nav_start_x = 40
         
         # Previous month button
         self.btn_prev = self.add_button(
