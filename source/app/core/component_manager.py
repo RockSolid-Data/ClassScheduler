@@ -127,10 +127,10 @@ class ComponentManager:
         
     def _load_home_component(self):
         self.logger.info("Loading Home component")
-        from librepy.app.components.home import home_view
+        from librepy.app.components.home import training_session_list
         # Use available area (accounting for sidebar width)
         available_area = self.get_available_area()
-        component = home_view.Home(
+        component = training_session_list.TrainingSessionList(
             self.app,
             self.ctx,
             self.smgr,
