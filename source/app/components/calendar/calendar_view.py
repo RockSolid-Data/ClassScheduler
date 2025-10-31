@@ -42,6 +42,9 @@ class Calendar(ctr_container.Container):
             'padding_x': int(ps[2] * 0.02),
             'padding_y': int(ps[3] * 0.02),
             'top_offset': self.toolbar_offset,
+            'entry_height': 24,          # Desired height per requirement
+            'entry_spacing': 4,          # Vertical spacing between entries
+            'entry_margin_x': 4,         # Horizontal margin inside day cell
             'colors': {
                 'border': 0x000000,
                 'day_label_bg': 0xF8F8F8,
@@ -556,11 +559,11 @@ class Calendar(ctr_container.Container):
             pill_name,
             x, y, w, h,
             Label=str(title or ''),
-            FontHeight=9,
-            FontWeight=100,
+            FontHeight=10,
+            FontWeight=150,
             TextColor=0x222222,
-            BackgroundColor=0xEAF3FF,
-            Border=1
+            BackgroundColor=0x72ab8a,
+            Border=0
         )
         self.session_labels[pill_name] = pill
         self._base_positions[pill_name] = (x, y, w, h, row_index)
@@ -568,15 +571,19 @@ class Calendar(ctr_container.Container):
 
     def _render_entries_for_day(self, date, x, base_y, cell_width, row_index):
         """Render all entries for a given date below the day label."""
-        day_label_height = self.calendar_config['day_label_height']
+        cfg = self.calendar_config
+        day_label_height = cfg['day_label_height']
+        entry_height = cfg.get('entry_height', 24)
+        entry_spacing = cfg.get('entry_spacing', 4)
+        entry_margin_x = cfg.get('entry_margin_x', 4)
         date_key = f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
         sessions_for_day = self.calendar_data.get(date_key, [])
         for idx, session in enumerate(sessions_for_day):
             pill_name = f"pill_{date.day}{date.month}{date.year}_{session['id']}"
-            pill_x = x + 4
-            pill_y = base_y + day_label_height + 2 + idx * 16
-            pill_w = cell_width - 8
-            pill_h = 14
+            pill_x = x + entry_margin_x
+            pill_y = base_y + day_label_height + entry_spacing + idx * (entry_height + entry_spacing)
+            pill_w = cell_width - 2 * entry_margin_x
+            pill_h = entry_height
             self._render_single_entry(pill_name, session.get('title'), pill_x, pill_y, pill_w, pill_h, row_index)
 
     def _move_entries_in_view(self, visible_row_start, visible_row_end, offset_y):
