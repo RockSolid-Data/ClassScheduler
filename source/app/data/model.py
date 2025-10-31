@@ -42,6 +42,11 @@ class Employee(BaseModel):
     employee_id = AutoField(primary_key=True)
     first_name = CharField(max_length=45)
     last_name = CharField(max_length=45)
+    email = CharField(max_length=45)
+
+class EmployeeContract(BaseModel):
+    contract_id = AutoField(primary_key=True)
+    employee = ForeignKeyField(Employee, backref='contracts')
     start_date = DateField()
     end_date = DateField()
     time_in = TimeField()
