@@ -65,7 +65,7 @@ class App(object):
                 self.ps
             )
             
-            self.active_screen = 'home'
+            self.active_screen = 'training_session_list'
             self.component_manager.switch_component(self.active_screen)
         except Exception:
             self.logger.error("Error creating component manager:")

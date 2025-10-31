@@ -3,7 +3,7 @@ from librepy.pybrex import ctr_container
 from com.sun.star.awt.PosSize import POSSIZE
 
 class Home(ctr_container.Container):
-    component_name = 'home'
+    component_name = 'training_session_list'
 
     def __init__(self, parent, ctx, smgr, frame, ps):
         self.logger = parent.logger

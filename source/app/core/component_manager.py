@@ -38,7 +38,7 @@ class ComponentManager:
         self._initialize_icon_cache()
         
         self._component_loaders = {
-            'home': self._load_home_component,
+            'training_session_list': self._load_home_component,
             'calendar': self._load_calendar_component,
             'appointment_calendar': self._load_appointment_calendar_component,
             'employee_calendar': self._load_employee_calendar_component,
@@ -47,7 +47,7 @@ class ComponentManager:
         
         # Components that should use available area (accounting for sidebar)
         # Other components will use full area
-        self._sidebar_aware_components = {'home', 'calendar', 'appointment_calendar', 'employee_calendar'}
+        self._sidebar_aware_components = {'training_session_list', 'calendar', 'appointment_calendar', 'employee_calendar'}
     
     def get_available_area(self):
         """
