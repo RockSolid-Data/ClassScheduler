@@ -16,9 +16,11 @@ from librepy import config
 '''
 
 from librepy.peewee.peewee import Model, DatabaseProxy
+from librepy.pybrex.values import APP_NAME
 
 database_proxy = DatabaseProxy()
 
 class BaseModel(Model):
     class Meta:
         database = database_proxy
+        schema = APP_NAME
