@@ -37,3 +37,12 @@ class ServiceAppointment(BaseModel):
     appointment_date = DateField()
     appointment_time = TimeField()
     notes = CharField(max_length=255)
+
+class Employee(BaseModel):
+    employee_id = AutoField(primary_key=True)
+    first_name = CharField(max_length=45)
+    last_name = CharField(max_length=45)
+    start_date = DateField()
+    end_date = DateField()
+    time_in = TimeField()
+    time_out = TimeField()
