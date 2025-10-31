@@ -55,16 +55,6 @@ class TrainingSessionList(ctr_container.Container):
             Label='Training Sessions', FontHeight=18, FontWeight=150
         )
 
-        # Buttons
-        self.btn_create = self.add_button(
-            'btn_create', pos['btn_create_x'], pos['btn_y'], pos['btn_w'], pos['btn_h'],
-            Label='Create Session', FontWeight=150, callback=self.create_session
-        )
-        self.btn_refresh = self.add_button(
-            'btn_refresh', pos['btn_refresh_x'], pos['btn_y'], pos['btn_w2'], pos['btn_h'],
-            Label='Refresh', FontWeight=150, callback=self.refresh_entries
-        )
-
         # Search controls
         self.lbl_search = self.add_label(
             'lbl_search', pos['search_label_x'], pos['search_y'], 60, 14, Label='Search:'
@@ -74,10 +64,6 @@ class TrainingSessionList(ctr_container.Container):
         )
         self.add_text_listener(self.txt_search, self._on_search_text_changed)
         self.add_key_listener(self.txt_search, pressed=self._on_search_key_pressed)
-        self.btn_search = self.add_button(
-            'btn_search', pos['search_btn_x'], pos['search_y'] - 1, 60, 16,
-            Label='Search', FontWeight=150, callback=self.search_data
-        )
 
         # Grid
         titles = [
@@ -218,16 +204,10 @@ class TrainingSessionList(ctr_container.Container):
             # Reposition controls
             if hasattr(self, 'lbl_title'):
                 self.lbl_title.setPosSize(pos['title_x'], pos['title_y'], pos['title_w'], pos['title_h'], POSSIZE)
-            if hasattr(self, 'btn_create'):
-                self.btn_create.setPosSize(pos['btn_create_x'], pos['btn_y'], pos['btn_w'], pos['btn_h'], POSSIZE)
-            if hasattr(self, 'btn_refresh'):
-                self.btn_refresh.setPosSize(pos['btn_refresh_x'], pos['btn_y'], pos['btn_w2'], pos['btn_h'], POSSIZE)
             if hasattr(self, 'lbl_search'):
                 self.lbl_search.setPosSize(pos['search_label_x'], pos['search_y'], 60, 14, POSSIZE)
             if hasattr(self, 'txt_search'):
                 self.txt_search.setPosSize(pos['search_x'], pos['search_y'], pos['search_w'], 14, POSSIZE)
-            if hasattr(self, 'btn_search'):
-                self.btn_search.setPosSize(pos['search_btn_x'], pos['search_y'] - 1, 60, 16, POSSIZE)
             if hasattr(self, 'grid'):
                 self.grid.setPosSize(pos['grid_x'], pos['grid_y'], pos['grid_w'], pos['grid_h'], POSSIZE)
 
@@ -241,35 +221,32 @@ class TrainingSessionList(ctr_container.Container):
     def _calculate_positions(self):
         pad_x = int(self.window_width * 0.02)
         pad_y = int(self.window_height * 0.02)
-        title_h = 22
-        title_w = min(300, self.window_width - 2 * pad_x)
+        
+        # Title
+        title_h = 24
+        title_w = min(360, self.window_width - 2 * pad_x)
         title_x = pad_x
         title_y = pad_y
-
-        btn_h = 18
-        btn_w = 120
-        btn_w2 = 80
-        btn_y = pad_y
-        btn_refresh_x = self.window_width - pad_x - btn_w2
-        btn_create_x = btn_refresh_x - (btn_w + 8)
-
-        search_y = title_y + title_h + 8
+        
+        # Search line sits clearly below the title to avoid overlap
+        search_y = title_y + title_h + 10
         search_label_x = pad_x
         search_x = search_label_x + 60 + 6
-        search_w = max(120, self.window_width - pad_x - 60 - 6 - 8 - 60 - pad_x)
-        search_btn_x = search_x + search_w + 8
-
+        # Cap the search field width so it doesn't span the whole screen
+        max_search_w = 360
+        available_w = max(120, self.window_width - pad_x - search_x - pad_x)
+        search_w = min(max_search_w, available_w)
+        
+        # Grid occupies the rest
         grid_x = pad_x
         grid_y = search_y + 20 + 8
         grid_w = self.window_width - 2 * pad_x
         grid_h = self.window_height - grid_y - pad_y
-
+        
         return {
             'title_x': title_x, 'title_y': title_y, 'title_w': title_w, 'title_h': title_h,
-            'btn_y': btn_y, 'btn_w': btn_w, 'btn_w2': btn_w2,
-            'btn_create_x': btn_create_x, 'btn_refresh_x': btn_refresh_x, 'btn_h': btn_h,
             'search_label_x': search_label_x, 'search_y': search_y,
-            'search_x': search_x, 'search_w': search_w, 'search_btn_x': search_btn_x,
+            'search_x': search_x, 'search_w': search_w,
             'grid_x': grid_x, 'grid_y': grid_y, 'grid_w': grid_w, 'grid_h': grid_h,
         }
 
