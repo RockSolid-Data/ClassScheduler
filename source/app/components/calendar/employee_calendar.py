@@ -49,14 +49,22 @@ class EmployeeCalendar(Calendar):
                     distinct_ids.append(cid)
 
             # Generate a simple HSL palette sized to distinct contracts
-            def hsl_color(i, n, s=0.6, l=0.6):
+            # Constrain saturation and lightness to produce light pastel colors that work with dark text
+            def hsl_color(i, n, s=0.45, l=0.82):
                 if n <= 0:
-                    return 0x6aa7d8  # fallback blue
+                    return 0xD6EAF8
                 h = (i % n) / float(n)
                 r, g, b = colorsys.hls_to_rgb(h, l, s)  # note: colorsys uses HLS
                 R = int(round(r * 255))
                 G = int(round(g * 255))
                 B = int(round(b * 255))
+                # Ensure sufficient brightness for dark (current) font
+                luma = 0.2126 * R + 0.7152 * G + 0.0722 * B
+                if luma < 150:  # too dark for 0x222222 text; lighten it
+                    r2, g2, b2 = colorsys.hls_to_rgb(h, 0.88, s)
+                    R = int(round(r2 * 255))
+                    G = int(round(g2 * 255))
+                    B = int(round(b2 * 255))
                 return (R << 16) | (G << 8) | B
 
             n = len(distinct_ids)
@@ -91,7 +99,7 @@ class EmployeeCalendar(Calendar):
                 title = ' '.join(filter(None, title_parts)) or c.get('title') or 'Contract'
 
                 contract_id = c.get('id')
-                bg_color = color_map.get(contract_id, 0x6aa7d8)
+                bg_color = color_map.get(contract_id, 0xD6EAF8)
 
                 # Emit one entry per day
                 current = start_day
