@@ -1,72 +1,199 @@
 import traceback
+import time as _time
 from librepy.pybrex import ctr_container
+from librepy.pybrex.values import pybrex_logger
 from com.sun.star.awt.PosSize import POSSIZE
+from librepy.pybrex.values import GRID_HEADER_BG_COLOR
+from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
 
 class TrainingSessionList(ctr_container.Container):
     component_name = 'training_session_list'
 
     def __init__(self, parent, ctx, smgr, frame, ps):
-        self.logger = parent.logger
-        self.parent = parent  
-        self.ctx = ctx            
-        self.smgr = smgr         
-        self.frame = frame        
-        self.ps = ps 
+        self.logger = getattr(parent, 'logger', pybrex_logger(__name__))
+        self.parent = parent
+        self.ctx = ctx
+        self.smgr = smgr
+        self.frame = frame
+        self.ps = ps
 
-        # Add toolbar offset
+        # UI state
+        self._all_rows = []
+        self._search_text = ''
+        self._debounce_handle = None
+        self._debounce_last = 0
+        self._debounce_ms = 300
+
+        # Toolbar offset (if parent adds one)
         self.toolbar_offset = 0
-        
-        # Settings configuration
+
+        # Container config
         self.container_config = {
-            'button_width': int(ps[2] * 0.20),  # 20% of window width
-            'button_height': int(ps[3] * 0.15),  # 15% of window height
-            'padding_x': int(ps[2] * 0.02),      # 2% horizontal padding
-            'padding_y': int(ps[3] * 0.05),      # 5% vertical padding
+            'padding_x': int(ps[2] * 0.02),
+            'padding_y': int(ps[3] * 0.02),
             'top_offset': self.toolbar_offset,
-            'colors': {
-                'border': 0x000000,      # Black border
-                'button_normal': 0xFFFFFF,   # White
-                'button_hover': 0xF0F0F0,    # Light white
-                'button_pressed': 0xE0E0E0,  # Slightly darker white
-            }
         }
-        
-        # Initialize the parent Container class properly
-        super().__init__(
-            ctx, 
-            smgr, 
-            frame.window,
-            ps,
-            background_color=0xF2F2F2
-        )
-        # Store initial container size from available area
+
+        # Initialize base container
+        super().__init__(ctx, smgr, frame.window, ps, background_color=0xF2F2F2)
+
+        # Store current size
         self.window_width = ps[2]
         self.window_height = ps[3]
 
         self._create()
-        self.logger.info(f"Home View initialized")
+        self.logger.info("TrainingSessionList initialized")
         self.show()
 
     def _create(self):
-        # Calculate initial positions
         pos = self._calculate_positions()
-        
-        # Home title
-        self.lbl_home_title = self.add_label(
-            "lbl_home_title", 
-            pos['title_x'], 
-            pos['title_y'], 
-            pos['title_width'], 
-            pos['title_height'], 
-            Label="Home", 
-            FontHeight=24, 
-            FontWeight=150, 
-            FontName='Sans-serif'
+
+        # Title
+        self.lbl_title = self.add_label(
+            'lbl_title',
+            pos['title_x'], pos['title_y'], pos['title_w'], pos['title_h'],
+            Label='Training Sessions', FontHeight=18, FontWeight=150
         )
 
-    def load_data(self):
-        pass
-    
+        # Buttons
+        self.btn_create = self.add_button(
+            'btn_create', pos['btn_create_x'], pos['btn_y'], pos['btn_w'], pos['btn_h'],
+            Label='Create Session', FontWeight=150, callback=self.create_session
+        )
+        self.btn_refresh = self.add_button(
+            'btn_refresh', pos['btn_refresh_x'], pos['btn_y'], pos['btn_w2'], pos['btn_h'],
+            Label='Refresh', FontWeight=150, callback=self.refresh_entries
+        )
+
+        # Search controls
+        self.lbl_search = self.add_label(
+            'lbl_search', pos['search_label_x'], pos['search_y'], 60, 14, Label='Search:'
+        )
+        self.txt_search = self.add_edit(
+            'txt_search', pos['search_x'], pos['search_y'], pos['search_w'], 14
+        )
+        self.add_text_listener(self.txt_search, self._on_search_text_changed)
+        self.add_key_listener(self.txt_search, pressed=self._on_search_key_pressed)
+        self.btn_search = self.add_button(
+            'btn_search', pos['search_btn_x'], pos['search_y'] - 1, 60, 16,
+            Label='Search', FontWeight=150, callback=self.search_data
+        )
+
+        # Grid
+        titles = [
+            ("Class", "name", 200, 1),
+            ("Teacher", "teacher_name", 200, 1),
+            ("Date", "session_date", 140, 1),
+            ("Time", "session_time", 120, 1),
+            ("Price", "price", 100, 1),
+        ]
+        self.grid_base, self.grid = self.add_grid(
+            'grid_sessions', pos['grid_x'], pos['grid_y'], pos['grid_w'], pos['grid_h'], titles,
+            ShowRowHeader=False, HeaderBackgroundColor=GRID_HEADER_BG_COLOR
+        )
+        # Wire double-click
+        self.grid_base.mouse_doubleclick_fn = self.on_row_double_click
+
+    def load_data(self, search_query=None):
+        try:
+            dao = TrainingSessionDAO(self.logger)
+            data = dao.get_training_sessions() or []
+
+            # Client-side filter
+            sq = (search_query if search_query is not None else self._search_text or '').strip().lower()
+            if sq:
+                def contains(s):
+                    return sq in (str(s or '')).lower()
+                filtered = []
+                for r in data:
+                    if contains(r.get('name')) or contains(r.get('teacher_name')) or contains(r.get('session_date')) or contains(r.get('session_time')):
+                        filtered.append(r)
+                data = filtered
+
+            # Guarantee id/heading
+            for r in data:
+                if not r.get('id'):
+                    # Build composite heading
+                    r['id'] = f"{r.get('name','')}|{r.get('session_date','')}|{r.get('session_time','')}"
+            self._all_rows = data
+
+            # Set to grid
+            self.grid_base.set_data(data, heading='id')
+        except Exception as e:
+            self.logger.error(f"Failed loading sessions: {e}")
+            self.logger.error(traceback.format_exc())
+
+    def refresh_entries(self, event=None):
+        self.load_data()
+
+    def search_data(self, event=None):
+        # Use current text field, trigger load
+        try:
+            self._search_text = self.txt_search.getText()
+        except Exception:
+            pass
+        self.load_data()
+
+    def _on_search_text_changed(self, ev=None):
+        # Debounced handler
+        now = _time.time()
+        self._search_text = self.txt_search.getText()
+        self._debounce_last = now
+
+        def do_after_delay():
+            try:
+                # Only act if no newer input occurred within debounce window
+                if (now == self._debounce_last) or ((_time.time() - now) * 1000 >= self._debounce_ms and self._debounce_last == now):
+                    self.load_data()
+            except Exception:
+                pass
+        # There is no built-in timer here; rely on user pressing Enter or Search.
+        # Still call immediate filter for responsiveness
+        self.load_data()
+
+    def _on_search_key_pressed(self, ev):
+        try:
+            # Enter key
+            if getattr(ev, 'KeyCode', None) == 1280:  # LibreOffice Enter key code (approx); handle broadly
+                self.search_data()
+        except Exception:
+            pass
+
+    def on_row_double_click(self, ev=None):
+        try:
+            # Get selected row id
+            heading = self.grid_base.active_row_heading()
+            if heading is None:
+                return
+            self.logger.info(f"Open TrainingSessionDialog for id={heading}")
+            # If a dialog exists, open it; otherwise just log
+            try:
+                from librepy.app.components.home.training_session_dialog import TrainingSessionDialog  # may not exist
+                dlg = TrainingSessionDialog(self.ctx, self.smgr, self.frame.window)
+                result = dlg.open_edit(heading)
+                if result:
+                    self.refresh_entries()
+            except Exception:
+                # Fallback: no dialog available
+                self.refresh_entries()
+        except Exception as e:
+            self.logger.error(f"Error handling double-click: {e}")
+
+    def create_session(self, ev=None):
+        try:
+            self.logger.info("Open TrainingSessionDialog in create mode")
+            try:
+                from librepy.app.components.home.training_session_dialog import TrainingSessionDialog  # may not exist
+                dlg = TrainingSessionDialog(self.ctx, self.smgr, self.frame.window)
+                result = dlg.open_create()
+                if result:
+                    self.refresh_entries()
+            except Exception:
+                # Fallback if dialog missing
+                self.refresh_entries()
+        except Exception as e:
+            self.logger.error(f"Error creating session: {e}")
+
     def show(self):
         super().show()
         self.load_data()
@@ -76,93 +203,90 @@ class TrainingSessionList(ctr_container.Container):
         super().hide()
 
     def resize(self, width, height):
-        """Handle window resize events"""
         try:
-            # Update stored dimensions
             self.window_width = width
             self.window_height = height - self.toolbar_offset
-            
-            # Update container configuration
-            self.container_config.update({
-                'button_width': int(width * 0.20),
-                'button_height': int((height - self.toolbar_offset) * 0.15),
-                'padding_x': int(width * 0.02),
-                'padding_y': int((height - self.toolbar_offset) * 0.05),
-            })
-            
-            # Get current sidebar width to maintain proper positioning
+
+            # Get sidebar offset if present
             sidebar_width = getattr(self.parent, 'sidebar_width', 0)
-            
-            # Resize the main container (preserve sidebar offset for X position)
-            self.container.setPosSize(
-                sidebar_width,  # Start after sidebar, not at 0
-                self.toolbar_offset,
-                width, 
-                height - self.toolbar_offset,
-                POSSIZE
-            )
-            
-            # Calculate positions for all components
+
+            # Resize main container
+            self.container.setPosSize(sidebar_width, self.toolbar_offset, width, height - self.toolbar_offset, POSSIZE)
+
             pos = self._calculate_positions()
-            
-            # Update home title label
-            if hasattr(self, 'lbl_home_title'):
-                self.lbl_home_title.setPosSize(
-                    pos['title_x'],
-                    pos['title_y'], 
-                    pos['title_width'], 
-                    pos['title_height'], 
-                    POSSIZE
-                )
-            
-            # Force redraw
+
+            # Reposition controls
+            if hasattr(self, 'lbl_title'):
+                self.lbl_title.setPosSize(pos['title_x'], pos['title_y'], pos['title_w'], pos['title_h'], POSSIZE)
+            if hasattr(self, 'btn_create'):
+                self.btn_create.setPosSize(pos['btn_create_x'], pos['btn_y'], pos['btn_w'], pos['btn_h'], POSSIZE)
+            if hasattr(self, 'btn_refresh'):
+                self.btn_refresh.setPosSize(pos['btn_refresh_x'], pos['btn_y'], pos['btn_w2'], pos['btn_h'], POSSIZE)
+            if hasattr(self, 'lbl_search'):
+                self.lbl_search.setPosSize(pos['search_label_x'], pos['search_y'], 60, 14, POSSIZE)
+            if hasattr(self, 'txt_search'):
+                self.txt_search.setPosSize(pos['search_x'], pos['search_y'], pos['search_w'], 14, POSSIZE)
+            if hasattr(self, 'btn_search'):
+                self.btn_search.setPosSize(pos['search_btn_x'], pos['search_y'] - 1, 60, 16, POSSIZE)
+            if hasattr(self, 'grid'):
+                self.grid.setPosSize(pos['grid_x'], pos['grid_y'], pos['grid_w'], pos['grid_h'], POSSIZE)
+
+            # Redraw
             if hasattr(self, 'container') and self.container.getPeer():
-                peer = self.container.getPeer()
-                peer.invalidate(0)
-                
+                self.container.getPeer().invalidate(0)
         except Exception as e:
             self.logger.error(f"Error during resize: {e}")
             self.logger.error(traceback.format_exc())
+
     def _calculate_positions(self):
-        """Calculate positions for UI components based on current window size"""
-        # Use padding from configuration
-        padding_x = self.container_config['padding_x']
-        padding_y = self.container_config['padding_y']
-        
-        # Home title positioning - centered horizontally, near the top
-        title_width = min(400, self.window_width - (padding_x * 2))  # Responsive width with max
-        title_height = 60  # Sufficient height for large title
-        title_x = (self.window_width - title_width) // 2  # Center horizontally
-        title_y = padding_y + 20  # Some space from top
-        
+        pad_x = int(self.window_width * 0.02)
+        pad_y = int(self.window_height * 0.02)
+        title_h = 22
+        title_w = min(300, self.window_width - 2 * pad_x)
+        title_x = pad_x
+        title_y = pad_y
+
+        btn_h = 18
+        btn_w = 120
+        btn_w2 = 80
+        btn_y = pad_y
+        btn_refresh_x = self.window_width - pad_x - btn_w2
+        btn_create_x = btn_refresh_x - (btn_w + 8)
+
+        search_y = title_y + title_h + 8
+        search_label_x = pad_x
+        search_x = search_label_x + 60 + 6
+        search_w = max(120, self.window_width - pad_x - 60 - 6 - 8 - 60 - pad_x)
+        search_btn_x = search_x + search_w + 8
+
+        grid_x = pad_x
+        grid_y = search_y + 20 + 8
+        grid_w = self.window_width - 2 * pad_x
+        grid_h = self.window_height - grid_y - pad_y
+
         return {
-            'title_x': title_x,
-            'title_y': title_y,
-            'title_width': title_width,
-            'title_height': title_height
+            'title_x': title_x, 'title_y': title_y, 'title_w': title_w, 'title_h': title_h,
+            'btn_y': btn_y, 'btn_w': btn_w, 'btn_w2': btn_w2,
+            'btn_create_x': btn_create_x, 'btn_refresh_x': btn_refresh_x, 'btn_h': btn_h,
+            'search_label_x': search_label_x, 'search_y': search_y,
+            'search_x': search_x, 'search_w': search_w, 'search_btn_x': search_btn_x,
+            'grid_x': grid_x, 'grid_y': grid_y, 'grid_w': grid_w, 'grid_h': grid_h,
         }
 
     def dispose(self):
-        """Dispose of all controls and grids"""
         try:
-            self.logger.info("Disposing of Home page")
-            
-            # Dispose of main container
+            self.logger.info("Disposing TrainingSessionList")
             if hasattr(self, 'container') and self.container is not None:
                 try:
-                    # Make sure the container window is hidden
                     try:
                         self.container.getPeer().setVisible(False)
-                    except:
+                    except Exception:
                         pass
-                    
-                    # Then dispose the container
                     self.container.dispose()
                 except Exception as container_error:
                     self.logger.error(f"Error disposing container: {str(container_error)}")
                 finally:
                     self.container = None
-            
         except Exception as e:
             self.logger.error(f"Error during disposal: {e}")
             self.logger.error(traceback.format_exc())
