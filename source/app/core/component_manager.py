@@ -140,10 +140,10 @@ class ComponentManager:
 
     def _load_calendar_component(self):
         self.logger.info("Loading Calendar component")
-        from librepy.app.components.calendar import calendar_view
+        from librepy.app.components.calendar.training_sessions_calendar import TrainingSessionsCalendar
         # Use available area (accounting for sidebar width)
         available_area = self.get_available_area()
-        component = calendar_view.Calendar(
+        component = TrainingSessionsCalendar(
             self.app,
             self.ctx,
             self.smgr,

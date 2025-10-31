@@ -7,7 +7,6 @@ import traceback
 import calendar
 from datetime import datetime, timedelta
 #Import DAOs here
-from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
 
 # Calendar configuration constants
 DEFAULT_WEEK_ROW_HEIGHT = 130  # Fixed height per week row (will become dynamic)
@@ -79,7 +78,7 @@ class Calendar(ctr_container.Container):
         # Calendar grid storage
         self.day_headers = {}    # Store day header labels (Sun, Mon, etc.)
         self.day_labels = {}     # Store day label controls
-        self.session_labels = {} # Store training session label controls
+        self.entry_labels = {}  # Store rendered entry label controls
         
         # Scrollbar-related properties
         self.scroll_offset = 0
@@ -495,112 +494,64 @@ class Calendar(ctr_container.Container):
         self._create_calendar_grid()
 
     def load_calendar_data(self):
-        """Load calendar training sessions from database and group by date string."""
-        try:
-            # Build visible date range for the current month
-            cal = calendar.Calendar(6)
-            dates_iter = list(cal.itermonthdates(self.current_date.year, self.current_date.month))
-            if not dates_iter:
-                self.calendar_data = {}
-                return
-            start_day = dates_iter[0]
-            end_day = dates_iter[-1]
-
-            # Fetch sessions within range
-            dao = TrainingSessionDAO(self.logger)
-            sessions = dao.get_sessions_between(start_day, end_day)
-
-            # Normalize and group by YYYY-MM-DD
-            grouped = {}
-            for s in sessions or []:
-                dt = s.get('date')
-                if hasattr(dt, 'strftime'):
-                    date_key = dt.strftime('%Y-%m-%d')
-                elif isinstance(dt, str):
-                    date_key = dt
-                else:
-                    # Fallback: skip invalid
-                    continue
-                # Ensure normalized date string saved back
-                s_norm = {
-                    'id': s.get('id'),
-                    'date': date_key,
-                    'title': s.get('title'),
-                    'status': s.get('status')
-                }
-                grouped.setdefault(date_key, []).append(s_norm)
-
-            self.calendar_data = grouped
-        except Exception as e:
-            self.logger.error(f"Error loading calendar data: {e}")
-            self.logger.error(traceback.format_exc())
-            self.calendar_data = {}
+        """Hook: Load calendar data for the currently visible month.
+        
+        Responsibility (for subclasses):
+        - Determine the visible month date range based on self.current_date.
+        - Populate self.calendar_data as a dict keyed by 'YYYY-MM-DD' → list of entry dicts.
+          Example: {'2025-10-31': [{'id': 1, 'title': 'Example', 'date': '2025-10-31'}]}.
+        - Do not perform any rendering here; just load/normalize data.
+        
+        Base implementation: no-op, leaves self.calendar_data unchanged (or empty).
+        """
+        # No-op in base
+        return
 
     def _clear_entries(self):
-        """Dispose and clear all rendered training session entry controls."""
-        try:
-            for name, ctrl in list(self.session_labels.items()):
-                try:
-                    ctrl.dispose()
-                except Exception:
-                    pass
-                # Remove cached position for this entry if present
-                if name in self._base_positions:
-                    try:
-                        del self._base_positions[name]
-                    except Exception:
-                        pass
-        finally:
-            self.session_labels.clear()
+        """Hook: Clear rendered entries.
+        
+        Responsibility (for subclasses):
+        - Dispose/remove any previously created entry controls.
+        - Clear related caches in self._base_positions.
+        
+        Base implementation: no-op. The base does not render any entries.
+        """
+        return
 
-    def _render_single_entry(self, pill_name, title, x, y, w, h, row_index):
-        """Create a single entry control and register/cache it."""
-        pill = self.add_label(
-            pill_name,
-            x, y, w, h,
-            Label=str(title or ''),
-            FontHeight=10,
-            FontWeight=150,
-            TextColor=0x222222,
-            BackgroundColor=0x72ab8a,
-            Border=0
-        )
-        self.session_labels[pill_name] = pill
-        self._base_positions[pill_name] = (x, y, w, h, row_index)
-        return pill
+    def _render_single_entry(self, entry_name, title, x, y, w, h, row_index):
+        """Hook: Render a single entry control at the given position.
+        
+        Responsibility (for subclasses):
+        - Create a UI control for the entry (e.g., a label/pill) and add it to the container.
+        - Store a reference in self.entry_labels[entry_name] and cache base position in self._base_positions.
+        - Use the provided row_index for scroll visibility management.
+        
+        Base implementation: no-op; returns None and does not render controls.
+        """
+        return None
 
     def _render_entries_for_day(self, date, x, base_y, cell_width, row_index):
-        """Render all entries for a given date below the day label."""
-        cfg = self.calendar_config
-        day_label_height = cfg['day_label_height']
-        entry_height = cfg.get('entry_height', 24)
-        entry_spacing = cfg.get('entry_spacing', 4)
-        entry_margin_x = cfg.get('entry_margin_x', 4)
-        date_key = f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
-        sessions_for_day = self.calendar_data.get(date_key, [])
-        for idx, session in enumerate(sessions_for_day):
-            pill_name = f"pill_{date.day}{date.month}{date.year}_{session['id']}"
-            pill_x = x + entry_margin_x
-            pill_y = base_y + day_label_height + entry_spacing + idx * (entry_height + entry_spacing)
-            pill_w = cell_width - 2 * entry_margin_x
-            pill_h = entry_height
-            self._render_single_entry(pill_name, session.get('title'), pill_x, pill_y, pill_w, pill_h, row_index)
+        """Hook: Render all entries for a specific date below the day label.
+        
+        Responsibility (for subclasses):
+        - For the given date, compute positions for all entries within the cell and call _render_single_entry.
+        - Use self.calendar_config values: day_label_height, entry_height, entry_spacing, entry_margin_x.
+        - Cache base positions in self._base_positions with row_index for smooth scrolling.
+        
+        Base implementation: no-op; does not render any entries.
+        """
+        return
 
     def _move_entries_in_view(self, visible_row_start, visible_row_end, offset_y):
-        """Relocate/show/hide entries for scrolling based on cached positions."""
-        controls_moved = 0
-        controls_hidden = 0
-        for ctrl_name, ctrl in self.session_labels.items():
-            if ctrl_name in self._base_positions:
-                x, y, w, h, row_index = self._base_positions[ctrl_name]
-                if visible_row_start <= row_index < visible_row_end:
-                    ctrl.setPosSize(x, y + offset_y, w, h, POSSIZE)
-                    ctrl.setVisible(True)
-                    controls_moved += 1
-                else:
-                    ctrl.setVisible(False)
-                    controls_hidden += 1
-        return controls_moved, controls_hidden
+        """Hook: Show/hide/move entries for scrolling based on cached positions.
+        
+        Responsibility (for subclasses):
+        - Using self._base_positions and self.entry_labels, reposition visible entries and hide others.
+        - Return a tuple (moved_count, hidden_count).
+        
+        Base implementation: no-op; returns (0, 0).
+        """
+        return 0, 0
 
     def show(self):
         # Load calendar data first
