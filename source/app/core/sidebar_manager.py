@@ -32,7 +32,8 @@ class SidebarManager(Sidebar):
         sidebar_items = [
             ('Button', 'Home', 'home.png', lambda: parent.show_screen('home'), 'Home'),
             ('Separator',),
-            ('Button', 'Calendar', 'calendar.png', lambda: parent.show_screen('calendar'), 'Calendar of events')
+            ('Button', 'Calendar', 'calendar.png', lambda: parent.show_screen('calendar'), 'Calendar of events'),
+            ('Button', 'Appointments', 'calendar.png', lambda: parent.show_screen('appointment_calendar'), 'Appointment calendar')
             # Add the rest of the sidebar items here
         ]
         

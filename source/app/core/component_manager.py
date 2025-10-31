@@ -40,12 +40,13 @@ class ComponentManager:
         self._component_loaders = {
             'home': self._load_home_component,
             'calendar': self._load_calendar_component,
+            'appointment_calendar': self._load_appointment_calendar_component,
             # Add the rest of the components here
         }
         
         # Components that should use available area (accounting for sidebar)
         # Other components will use full area
-        self._sidebar_aware_components = {'home', 'calendar'}
+        self._sidebar_aware_components = {'home', 'calendar', 'appointment_calendar'}
     
     def get_available_area(self):
         """
@@ -144,6 +145,20 @@ class ComponentManager:
         # Use available area (accounting for sidebar width)
         available_area = self.get_available_area()
         component = TrainingSessionsCalendar(
+            self.app,
+            self.ctx,
+            self.smgr,
+            self.frame_manager,
+            available_area
+        )
+        component.show()
+        return component
+
+    def _load_appointment_calendar_component(self):
+        self.logger.info("Loading Appointment Calendar component")
+        from librepy.app.components.calendar.appointment_calendar import AppointmentCalendar
+        available_area = self.get_available_area()
+        component = AppointmentCalendar(
             self.app,
             self.ctx,
             self.smgr,
