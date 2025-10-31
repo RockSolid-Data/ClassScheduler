@@ -22,6 +22,13 @@ class TrainingSessionsCalendar(Calendar):
     # ------------------------------
     # Hook implementations
     # ------------------------------
+    def on_print(self, event):
+        """Subclass callback for Print button (placeholder)."""
+        self.logger.info("Print requested (TrainingSessionsCalendar) - not implemented yet")
+
+    def on_new_entry(self, event):
+        """Subclass callback for New Entry button (placeholder)."""
+        self.logger.info("New Entry requested (TrainingSessionsCalendar) - not implemented yet")
 
     def load_calendar_data(self):
         """Load training sessions for the visible month into self.calendar_data.

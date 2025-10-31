@@ -134,6 +134,33 @@ class Calendar(ctr_container.Container):
             FontWeight=150, 
             FontName='Sans-serif'
         )
+
+        try:
+            pos = self._calculate_positions()
+            self.btn_new_entry = self.add_button(
+                "btnNewEntry",
+                pos['new_entry_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'],
+                Label="New Entry",
+                callback=self.on_new_entry,
+                BackgroundColor=0x2C3E50,
+                TextColor=0xFFFFFF,
+                FontWeight=150,
+                FontHeight=12,
+                Border=6
+            )
+            self.btn_print = self.add_button(
+                "btnPrint",
+                pos['print_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'],
+                Label="Print",
+                callback=self.on_print,
+                BackgroundColor=0x2C3E50,
+                TextColor=0xFFFFFF,
+                FontWeight=150,
+                FontHeight=12,
+                Border=6
+            )
+        except Exception as e:
+            self.logger.error(f"Failed creating top-right buttons: {e}")
         
         nav_y = 95
         nav_height = 30
@@ -507,6 +534,15 @@ class Calendar(ctr_container.Container):
         """
         return
 
+    # Action hooks (to be implemented by subclasses as needed)
+    def on_print(self, event):
+        """Hook: Handle Print button click. Base: no-op."""
+        return
+
+    def on_new_entry(self, event):
+        """Hook: Handle New Entry button click. Base: no-op."""
+        return
+
     def _clear_entries(self):
         """Dispose and clear all rendered entry controls and their cached positions.
         
@@ -611,8 +647,19 @@ class Calendar(ctr_container.Container):
             # Calculate positions for all components
             pos = self._calculate_positions()
             
-            # Update top row buttons with horizontal layout
-            # (Create Event and Print Calendar buttons removed)
+            # Update top-right action buttons positions
+            try:
+                pos = self._calculate_positions()
+                if hasattr(self, 'btn_print') and self.btn_print:
+                    self.btn_print.setPosSize(
+                        pos['print_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'], POSSIZE
+                    )
+                if hasattr(self, 'btn_new_entry') and self.btn_new_entry:
+                    self.btn_new_entry.setPosSize(
+                        pos['new_entry_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'], POSSIZE
+                    )
+            except Exception as e:
+                self.logger.error(f"Error positioning top-right buttons: {e}")
             
             # Update calendar grid (recreate with new dimensions)
             self._create_calendar_grid()
@@ -683,6 +730,22 @@ class Calendar(ctr_container.Container):
             self.day_labels.clear()
             self._clear_entries()
             
+            # Dispose top-right action buttons
+            if hasattr(self, 'btn_print') and self.btn_print is not None:
+                try:
+                    self.btn_print.dispose()
+                except Exception as print_err:
+                    self.logger.error(f"Error disposing Print button: {str(print_err)}")
+                finally:
+                    self.btn_print = None
+            if hasattr(self, 'btn_new_entry') and self.btn_new_entry is not None:
+                try:
+                    self.btn_new_entry.dispose()
+                except Exception as new_err:
+                    self.logger.error(f"Error disposing New Entry button: {str(new_err)}")
+                finally:
+                    self.btn_new_entry = None
+
             # Dispose scroll buttons
             if hasattr(self, 'btn_scroll_up') and self.btn_scroll_up is not None:
                 try:
@@ -731,20 +794,20 @@ class Calendar(ctr_container.Container):
 
     def _calculate_positions(self):
         """Calculate positions for UI components based on current window size"""
-        # Top row buttons - arranged horizontally
+        # Top-right action buttons (right-aligned)
         top_button_width = 140
         top_button_height = 30
-        top_button_y = 20
+        top_button_y = 20  # Align with title Y
         button_spacing = 10
         right_margin = 50
         
-        # Calculate positions for horizontal layout (right to left)
-        logout_x = self.window_width - (top_button_width + right_margin)
-        create_job_x = logout_x - (top_button_width + button_spacing)
+        # Right-to-left placement: Print (right), New Entry (left of Print)
+        print_x = self.window_width - (top_button_width + right_margin)
+        new_entry_x = print_x - (top_button_width + button_spacing)
         
         return {
-            'logout_x': logout_x,
-            'create_job_x': create_job_x,
+            'print_x': print_x,
+            'new_entry_x': new_entry_x,
             'top_button_y': top_button_y,
             'top_button_width': top_button_width,
             'top_button_height': top_button_height,

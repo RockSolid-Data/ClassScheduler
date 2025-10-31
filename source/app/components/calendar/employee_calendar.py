@@ -23,6 +23,14 @@ class EmployeeCalendar(Calendar):
     # ------------------------------
     # Hook implementations
     # ------------------------------
+    def on_print(self, event):
+        """Subclass callback for Print button (placeholder)."""
+        self.logger.info("Print requested (EmployeeCalendar) - not implemented yet")
+
+    def on_new_entry(self, event):
+        """Subclass callback for New Entry button (placeholder)."""
+        self.logger.info("New Entry requested (EmployeeCalendar) - not implemented yet")
+
     def load_calendar_data(self):
         """Load employee contracts overlapping the visible month and expand to daily entries.
 
