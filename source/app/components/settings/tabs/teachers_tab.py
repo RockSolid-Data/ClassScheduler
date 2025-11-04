@@ -10,14 +10,16 @@ class TeachersTab(BaseTab):
         self.btn_new_entry = None
 
     def build(self):
-        btn_w, btn_h = 100, 22
+        btn_w, btn_h = 70, 10
         btn_x = 10 + 460 - btn_w
-        btn_y = 10
+        btn_y = 5
         self.btn_new_entry = self.dialog.add_button(
             'BtnTeacherNewEntry', btn_x, btn_y, btn_w, btn_h,
             callback=self.on_new_entry,
             page=self.page,
-            Label='New Entry'
+            Label='New Entry',
+            FontWeight=100,
+            FontHeight=12,
         )
 
         titles = [
@@ -27,8 +29,8 @@ class TeachersTab(BaseTab):
         ]
         self.grid_base, self.grid = self.dialog.add_grid(
             'GridTeachers',
-            10, 40,
-            460, 270,
+            10, 20,
+            460, 260,
             titles,
             page=self.page,
             ShowRowHeader=False,
