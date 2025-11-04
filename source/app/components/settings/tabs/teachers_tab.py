@@ -42,9 +42,25 @@ class TeachersTab(BaseTab):
         try:
             from librepy.app.components.settings.teacher_entry_dlg import TeacherEntryDialog
             dlg = TeacherEntryDialog(self.ctx, self.dialog, self.logger)
-            dlg.execute()
+            ret = dlg.execute()
+            if ret in (1, 2):
+                self.load_data()
         except Exception as e:
             self.logger.error(f"Failed to open TeacherEntryDialog: {e}")
+
+    def on_row_double_click(self, ev=None):
+        try:
+            # Obtain selected row id from grid heading
+            heading = self.grid_base.active_row_heading()
+            if heading is None:
+                return
+            from librepy.app.components.settings.teacher_entry_dlg import TeacherEntryDialog
+            dlg = TeacherEntryDialog(self.ctx, self.dialog, self.logger, teacher_id=heading)
+            ret = dlg.execute()
+            if ret in (1, 2):
+                self.load_data()
+        except Exception as e:
+            self.logger.error(f"TeachersTab.on_row_double_click error: {e}")
 
     def load_data(self):
         try:
