@@ -1,6 +1,5 @@
 from librepy.app.data.base_dao import BaseDAO
 from librepy.app.data.model import EmployeeContract, Employee
-from datetime import date
 
 
 class EmployeeContractDAO(BaseDAO):
@@ -8,51 +7,58 @@ class EmployeeContractDAO(BaseDAO):
     def __init__(self, logger):
         super().__init__(EmployeeContract, logger)
 
-    def _row_to_dict(self, row):
-        """Map EmployeeContract row to required dict format.
-        
-        Returns keys:
-        - id: contract_id
-        - employee_id
-        - employee_name: 'First Last' if available
-        - start_date
-        - end_date
-        - time_in, time_out
-        - title: display title for calendar entries (defaults to employee_name or 'Contract <id>')
-        - status: defaults to 'active'
-        """
-        try:
-            ec = row
-            # Try to resolve employee fields whether joined or lazy attribute
-            emp = getattr(ec, 'employee', None)
-            first = getattr(emp, 'first_name', None) if emp is not None else None
-            last = getattr(emp, 'last_name', None) if emp is not None else None
-            employee_name = None
-            if first or last:
-                employee_name = f"{first or ''} {last or ''}".strip()
 
-            title = employee_name or f"Contract {getattr(ec, 'contract_id', '')}"
+    def create(self, employee, start_date, end_date, time_in=None, time_out=None):
+        """Create a new EmployeeContract and return the model instance."""
+        def _q():
+            return EmployeeContract.create(
+                employee=employee,
+                start_date=start_date,
+                end_date=end_date,
+                time_in=time_in,
+                time_out=time_out,
+            )
+        return self.safe_execute('create EmployeeContract', _q, default_return=None)
 
-            return {
-                'id': getattr(ec, 'contract_id', None),
-                'employee_id': getattr(emp, 'employee_id', None) if emp is not None else None,
-                'employee_name': employee_name,
-                'start_date': getattr(ec, 'start_date', None),
-                'end_date': getattr(ec, 'end_date', None),
-                'time_in': getattr(ec, 'time_in', None),
-                'time_out': getattr(ec, 'time_out', None),
-                'title': title,
-                'status': getattr(ec, 'status', 'active') if hasattr(ec, 'status') else 'active',
-            }
-        except Exception:
-            # Fallback minimal dict
-            return {
-                'id': getattr(row, 'contract_id', None),
-                'start_date': getattr(row, 'start_date', None),
-                'end_date': getattr(row, 'end_date', None),
-                'title': f"Contract {getattr(row, 'contract_id', '')}",
-                'status': 'active',
-            }
+    def update(self, contract_id, employee=None, start_date=None, end_date=None, time_in=None, time_out=None):
+        """Update provided fields on EmployeeContract and return the refreshed instance."""
+        updates = {}
+        if employee is not None:
+            updates['employee'] = employee
+        if start_date is not None:
+            updates['start_date'] = start_date
+        if end_date is not None:
+            updates['end_date'] = end_date
+        if time_in is not None:
+            updates['time_in'] = time_in
+        if time_out is not None:
+            updates['time_out'] = time_out
+        if updates:
+            self.update_fields(EmployeeContract.contract_id == contract_id, updates, operation_name='update EmployeeContract')
+        def _fetch():
+            return EmployeeContract.get(EmployeeContract.contract_id == contract_id)
+        return self.safe_execute('get EmployeeContract after update', _fetch, default_return=None)
+
+    def _row_to_dict(self, ec):
+        """Map EmployeeContract row to calendar dict (assumes Employee is joined)."""
+        emp = getattr(ec, 'employee', None)
+        first = getattr(emp, 'first_name', None) if emp is not None else None
+        last = getattr(emp, 'last_name', None) if emp is not None else None
+        employee_name = None
+        if first or last:
+            employee_name = f"{(first or '').strip()} {(last or '').strip()}".strip()
+
+        return {
+            'id': getattr(ec, 'contract_id', None),
+            'employee_id': getattr(emp, 'employee_id', None) if emp is not None else None,
+            'employee_name': employee_name,
+            'start_date': getattr(ec, 'start_date', None),
+            'end_date': getattr(ec, 'end_date', None),
+            'time_in': getattr(ec, 'time_in', None),
+            'time_out': getattr(ec, 'time_out', None),
+            'title': employee_name or f"Contract {getattr(ec, 'contract_id', '')}",
+            'status': 'active',
+        }
 
     def get_contracts_between(self, start_date, end_date):
         """Query EmployeeContract rows that overlap the [start_date, end_date] range.

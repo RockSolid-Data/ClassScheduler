@@ -28,8 +28,31 @@ class EmployeeCalendar(Calendar):
         self.logger.info("Print requested (EmployeeCalendar) - not implemented yet")
 
     def on_new_entry(self, event):
-        """Subclass callback for New Entry button (placeholder)."""
-        self.logger.info("New Entry requested (EmployeeCalendar) - not implemented yet")
+        """Open the Employee Contract dialog and refresh calendar on successful save."""
+        try:
+            from .employee_contract_dlg import EmployeeContractDialog
+            dlg = EmployeeContractDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="New Employee Contract")
+            ret = dlg.execute()
+            if ret == 1:
+                self._update_calendar()
+        except Exception as e:
+            self.logger.error(f"Failed to open Employee Contract dialog: {e}")
+            self.logger.error(traceback.format_exc())
+
+    def on_entry_click(self, ev, entry_id=None):
+        """Open Employee Contract dialog in edit mode when clicking an entry; refresh on save/delete."""
+        try:
+            super().on_entry_click(ev, entry_id)
+            if entry_id is None:
+                return
+            from .employee_contract_dlg import EmployeeContractDialog
+            dlg = EmployeeContractDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Edit Employee Contract", contract_id=entry_id)
+            ret = dlg.execute()
+            if ret == 1 or ret == 2:
+                self._update_calendar()
+        except Exception as e:
+            self.logger.error(f"Failed to open Employee Contract for edit (id={entry_id}): {e}")
+            self.logger.error(traceback.format_exc())
 
     def load_calendar_data(self):
         """Load employee contracts overlapping the visible month and expand to daily entries.
