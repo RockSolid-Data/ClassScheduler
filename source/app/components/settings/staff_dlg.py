@@ -1,13 +1,14 @@
 from librepy.pybrex import dialog
+from librepy.app.components.settings.tabs.employees_tab import EmployeesTab
+from librepy.app.components.settings.tabs.teachers_tab import TeachersTab
 
 
 class StaffDialog(dialog.DialogBase):
     """
-    Empty dialog for future Staff management. For now, it only provides OK/Cancel
-    buttons positioned at the lower-right corner.
+    Staff management dialog with two empty tabs (Employees, Teachers) and OK/Cancel buttons.
     """
 
-    POS_SIZE = 0, 0, 420, 260
+    POS_SIZE = 0, 0, 500, 400
     MARGIN = 12
     BUTTON_HEIGHT = 22
 
@@ -16,15 +17,33 @@ class StaffDialog(dialog.DialogBase):
         self.ctx = ctx
         self.parent = parent
         self.logger = logger
+        # Tab view instances
+        self.employees_tab = None
+        self.teachers_tab = None
         super().__init__(ctx, self.parent, **props)
 
     def _create(self):
-        # Optional placeholder content area
-        x = self.MARGIN
-        y = self.MARGIN
-        w = self.POS_SIZE[2] - (self.MARGIN * 2)
-        h = self.POS_SIZE[3] - (self.MARGIN * 3) - self.BUTTON_HEIGHT
+        # Layout calculations
+        content_x = self.MARGIN
+        content_y = self.MARGIN
+        content_w = self.POS_SIZE[2] - (self.MARGIN * 2)
+        content_h = self.POS_SIZE[3] - (self.MARGIN * 3) - self.BUTTON_HEIGHT
 
+        # Create tab container
+        tabs = self.add_page_container('Tabs', content_x, content_y, content_w, content_h)
+
+        # Add pages
+        page_employees = self.add_page(tabs, 'EmployeesPage', 'Employees')
+        page_teachers = self.add_page(tabs, 'TeachersPage', 'Teachers')
+
+        # Instantiate tab views and build
+        self.employees_tab = EmployeesTab(self, page_employees, self.ctx, self.smgr, self.logger)
+        self.employees_tab.build()
+
+        self.teachers_tab = TeachersTab(self, page_teachers, self.ctx, self.smgr, self.logger)
+        self.teachers_tab.build()
+
+        # Buttons at bottom-right
         btn_width = 70
         gap = 8
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
