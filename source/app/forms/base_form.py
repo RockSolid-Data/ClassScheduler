@@ -20,8 +20,8 @@ class BaseForm:
 
     # ---- Class-level configuration (override in child via inner Meta) ----
     class Meta:
-        dao: Optional[Type[Any]] = None                     # DAO class, no-arg init
-        dao_factory: Optional[Callable[[Any], Any]] = None  # callable(context) -> dao
+        dao: Optional[Type[Any]] = None
+        dao_factory: Optional[Callable[[Any], Any]] = None
         create_fn: str = "create"
         update_fn: str = "update"
         pk_field: str = "id"
@@ -32,7 +32,7 @@ class BaseForm:
         data: Optional[Dict[str, Any]] = None,
         instance: Any = None,
         partial: bool = False,
-        context: Any = None,  # optional: passed to dao_factory if you use it
+        context: Any = None,
     ):
         self.data = data or {}
         self.instance = instance

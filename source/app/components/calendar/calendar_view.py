@@ -543,7 +543,7 @@ class Calendar(ctr_container.Container):
         """Hook: Handle New Entry button click. Base: no-op."""
         return
 
-    def _on_entry_click(self, ev, entry_id=None):
+    def on_entry_click(self, ev, entry_id=None):
         """Default handler for entry button clicks.
         
         Subclasses should override to implement domain-specific behavior.
@@ -594,8 +594,7 @@ class Calendar(ctr_container.Container):
             Border=0
         )
         # Bind double-click listener if available; fallback to action listener
-        self.listeners.add_mouse_listener(btn, pressed=lambda ev, eid=entry_id: self._on_entry_click(ev, eid))
-        # self.add_action_listener(btn, lambda ev, eid=entry_id: self._on_entry_click(ev, eid))
+        self.listeners.add_mouse_listener(btn, pressed=lambda ev, eid=entry_id: self.on_entry_click(ev, eid))
 
         self.entry_labels[entry_name] = btn
         self._base_positions[entry_name] = (x, y, w, h, row_index)
