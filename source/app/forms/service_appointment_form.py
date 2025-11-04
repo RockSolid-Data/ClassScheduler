@@ -67,8 +67,8 @@ class ServiceAppointmentForm(BaseForm):
                 self.add_error("service_apt_id", "Invalid service appointment id")
 
         # name
-            name_val = (name or "").strip()
-            cleaned["name"] = name_val
+        name_val = (name or "").strip()
+        cleaned["name"] = name_val
 
         # phone: digits only, at least 7
         if (phone is not None) or not self.partial:

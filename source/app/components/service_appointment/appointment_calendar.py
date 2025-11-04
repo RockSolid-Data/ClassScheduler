@@ -27,10 +27,12 @@ class AppointmentCalendar(Calendar):
         self.logger.info("Print requested (AppointmentCalendar) - not implemented yet")
 
     def on_new_entry(self, event):
-        """Open the Service Appointment dialog (container-only)."""
+        """Open the Service Appointment dialog and refresh calendar on successful save."""
         try:
             dlg = ServiceAppointmentDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="New Service Appointment")
-            dlg.execute()
+            ret = dlg.execute()
+            if ret == 1:
+                self._update_calendar()
         except Exception as e:
             self.logger.error(f"Failed to open Service Appointment dialog: {e}")
             self.logger.error(traceback.format_exc())
