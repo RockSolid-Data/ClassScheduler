@@ -15,10 +15,10 @@ class ServiceAppointmentDialog(dialog.DialogBase):
     """
 
     # x, y, width, height
-    POS_SIZE = 0, 0, 520, 300
+    POS_SIZE = 0, 0, 400, 300
 
     # Layout constants
-    MARGIN = 16
+    MARGIN = 32
     ROW_SPACING = 10
     LABEL_HEIGHT = 14
     FIELD_HEIGHT = 22
@@ -27,7 +27,6 @@ class ServiceAppointmentDialog(dialog.DialogBase):
     def __init__(self, parent, ctx, smgr, frame, ps, **props):
         # Basic dialog appearance
         props['Title'] = props.get('Title', 'Service Appointment')
-        props['BackgroundColor'] = props.get('BackgroundColor', 0xFFFFFF)
 
         # Optional edit-mode id
         self.service_apt_id = props.pop('service_apt_id', None)
@@ -50,7 +49,7 @@ class ServiceAppointmentDialog(dialog.DialogBase):
     def _create(self):
         """Create the static UI controls with equal label/field widths."""
         x = self.MARGIN
-        y = self.MARGIN
+        y = self.MARGIN // 3
 
         # Compute equal widths for labels and fields
         total_inner_width = self.POS_SIZE[2] - (self.MARGIN * 2)
@@ -58,8 +57,7 @@ class ServiceAppointmentDialog(dialog.DialogBase):
         self.lbl_width = int(total_inner_width * 0.30)
         self.field_width = total_inner_width - self.lbl_width
 
-        label_kwargs = dict(FontWeight=120, FontHeight=11, VerticalAlign=2, Align=2)
-        # Align=2 makes label text right-aligned to create a neat column
+        label_kwargs = dict(FontWeight=120, FontHeight=11, VerticalAlign=2)
 
         # name
         self.add_label('LblName', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Name', **label_kwargs)
