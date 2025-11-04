@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple
+from typing import List, Tuple
 
 from librepy.app.forms.employee_contract_form import EmployeeContractForm
 from librepy.app.data.dao.employee_contract_dao import EmployeeContractDAO
@@ -6,7 +6,7 @@ from librepy.app.data.model import Employee
 from librepy.app.data.base_dao import BaseDAO
 
 
-def save_employee_contract(data: Dict[str, Any], context=None) -> Dict[str, Any]:
+def save_employee_contract(data: dict, context=None) -> dict:
     """
     Validate and persist an Employee Contract using BaseForm.
 
@@ -24,7 +24,7 @@ def save_employee_contract(data: Dict[str, Any], context=None) -> Dict[str, Any]
     return form.save()
 
 
-def delete_employee_contract(contract_id: int, context=None) -> Dict[str, Any]:
+def delete_employee_contract(contract_id: int, context=None) -> dict:
     """Delete an EmployeeContract by id.
 
     Returns: {"ok": True, "deleted": n} when n > 0, else {"ok": False}

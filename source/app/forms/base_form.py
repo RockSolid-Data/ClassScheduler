@@ -29,7 +29,7 @@ class BaseForm:
     # ---- Init & public API ----
     def __init__(
         self,
-        data: Optional[Dict[str, Any]] = None,
+        data: Optional[dict] = None,
         instance: Any = None,
         partial: bool = False,
         context: Any = None,
@@ -64,7 +64,7 @@ class BaseForm:
         self.clean()
         return not self._errors
 
-    def save(self) -> Dict[str, Any]:
+    def save(self) -> dict:
         """
         Uses Meta to pick DAO + method:
             if pk present -> Meta.update_fn
