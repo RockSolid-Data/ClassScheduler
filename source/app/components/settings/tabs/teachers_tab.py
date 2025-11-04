@@ -1,5 +1,6 @@
 from .base_tab import BaseTab
 from librepy.app.data.dao.teacher_dao import TeacherDAO
+from librepy.pybrex.listeners import Listeners
 
 
 class TeachersTab(BaseTab):
@@ -8,6 +9,7 @@ class TeachersTab(BaseTab):
         self.grid_base = None
         self.grid = None
         self.btn_new_entry = None
+        self.listeners = Listeners()
 
     def build(self):
         btn_w, btn_h = 70, 10
@@ -35,6 +37,7 @@ class TeachersTab(BaseTab):
             page=self.page,
             ShowRowHeader=False,
         )
+        self.listeners.add_mouse_listener(self.grid, pressed=self.on_row_double_click)
         # Load data initially
         self.load_data()
 
@@ -49,18 +52,19 @@ class TeachersTab(BaseTab):
             self.logger.error(f"Failed to open TeacherEntryDialog: {e}")
 
     def on_row_double_click(self, ev=None):
-        try:
-            # Obtain selected row id from grid heading
-            heading = self.grid_base.active_row_heading()
-            if heading is None:
-                return
-            from librepy.app.components.settings.teacher_entry_dlg import TeacherEntryDialog
-            dlg = TeacherEntryDialog(self.ctx, self.dialog, self.logger, teacher_id=heading)
-            ret = dlg.execute()
-            if ret in (1, 2):
-                self.load_data()
-        except Exception as e:
-            self.logger.error(f"TeachersTab.on_row_double_click error: {e}")
+        if getattr(ev, 'Buttons', None) == 1 and getattr(ev, 'ClickCount', 0) == 2:
+            try:
+                # Obtain selected row id from grid heading
+                heading = self.grid_base.active_row_heading()
+                if heading is None:
+                    return
+                from librepy.app.components.settings.teacher_entry_dlg import TeacherEntryDialog
+                dlg = TeacherEntryDialog(self.ctx, self.dialog, self.logger, teacher_id=heading)
+                ret = dlg.execute()
+                if ret in (1, 2):
+                    self.load_data()
+            except Exception as e:
+                self.logger.error(f"TeachersTab.on_row_double_click error: {e}")
 
     def load_data(self):
         try:

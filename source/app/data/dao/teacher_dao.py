@@ -22,17 +22,14 @@ class TeacherDAO(BaseDAO):
         return self.safe_execute('create Teacher', _q, default_return=None)
 
     def update(self, teacher_id, first_name=None, last_name=None, email=None):
-        """Update provided fields on Teacher and return the model instance."""
-        updates = {}
-        if first_name is not None:
-            updates['first_name'] = first_name
-        if last_name is not None:
-            updates['last_name'] = last_name
-        if email is not None:
-            updates['email'] = email
-        
-        if updates:
-            self.update_fields(Teacher.teacher_id == teacher_id, updates, operation_name='update Teacher')
+        """Update fields on Teacher and return the model instance.
+        """
+        updates = {
+            'first_name': first_name,
+            'last_name': last_name,
+            'email': email,
+        }
+        self.update_fields(Teacher.teacher_id == teacher_id, updates, operation_name='update Teacher')
         # Return the (possibly updated) instance
         def _fetch():
             return Teacher.get(Teacher.teacher_id == teacher_id)

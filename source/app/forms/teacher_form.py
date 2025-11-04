@@ -16,6 +16,7 @@ class TeacherForm(BaseForm):
         teacher_id = self.get("teacher_id")
         first_name_in = self.require("first_name")
         last_name_in = self.require("last_name")
+        email_in = self.get("email")
 
         cleaned: Dict[str, Any] = {}
 
@@ -42,10 +43,12 @@ class TeacherForm(BaseForm):
             else:
                 cleaned["last_name"] = ln
 
-        # email
-        if (email_in is not None) or not self.partial:
-            em = (str(email_in or "")).strip()
-            if not em or "@" not in em:
+        em_raw = email_in
+        em = None if em_raw is None else str(em_raw).strip()
+        if em is None or em == "":
+            cleaned["email"] = None
+        else:
+            if "@" not in em:
                 self.add_error("email", "Invalid email address")
             else:
                 cleaned["email"] = em

@@ -19,7 +19,7 @@ class Teacher(BaseModel):
     teacher_id = AutoField(primary_key=True)
     first_name = CharField(max_length=45)
     last_name = CharField(max_length=45)
-    email = CharField()
+    email = CharField(null=True)
 
 class TrainingSession(BaseModel):
     session_id = AutoField(primary_key=True)
