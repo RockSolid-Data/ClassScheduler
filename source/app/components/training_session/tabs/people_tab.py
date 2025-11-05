@@ -23,19 +23,19 @@ class PeopleTab(BaseTab):
         # Compute page-relative geometry similar to TeachersTab but adapted to this dialog size
         page_width = self.dialog.POS_SIZE[2] - (self.dialog.MARGIN * 2)
         page_height = self.dialog.POS_SIZE[3] - (self.dialog.MARGIN * 3) - self.dialog.BUTTON_HEIGHT + 30
-        pad = 10
+        pad = 5
 
         # Top-right New Entry button
-        btn_w, btn_h = 100, 12
-        btn_x = page_width - btn_w
-        btn_y = 4
+        btn_w, btn_h = 70, 10
+        btn_y = 5
+        btn_x = page_width - pad - btn_w
         self.btn_new_entry = self.dialog.add_button(
             'BtnAttendeeNewEntry', btn_x, btn_y, btn_w, btn_h,
             callback=self.on_new_entry,
             page=self.page,
             Label='New Entry',
             FontWeight=100,
-            FontHeight=11,
+            FontHeight=12,
         )
 
         # Grid title spec
