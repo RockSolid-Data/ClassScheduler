@@ -62,7 +62,7 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
         # Only show additional tabs in edit mode
         if self.session_id is not None:
             page_people = self.add_page(tabs, 'PeoplePage', 'People')
-            self.people_tab = PeopleTab(self, page_people, self.ctx, self.smgr, self.logger)
+            self.people_tab = PeopleTab(self, page_people, self.ctx, self.smgr, self.logger, session_id=self.session_id)
             self.people_tab.build()
         else:
             self.people_tab = None
