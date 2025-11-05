@@ -46,7 +46,7 @@ class TrainingSessionsCalendar(Calendar):
                 return
             dlg = TrainingSessionEntryDlg(self, self.ctx, self.smgr, self.frame, self.ps, Title="Edit Training Session", session_id=entry_id)
             ret = dlg.execute()
-            if ret == 1:
+            if ret == 1 or ret == 2:
                 self._update_calendar()
         except Exception as e:
             self.logger.error(f"Failed to open Training Session for edit (id={entry_id}): {e}")

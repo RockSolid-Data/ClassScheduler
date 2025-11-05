@@ -1,5 +1,5 @@
 from librepy.pybrex import dialog
-from librepy.pybrex.msgbox import msgbox
+from librepy.pybrex.msgbox import msgbox, confirm_action
 from librepy.pybrex.uno_date_time_converters import uno_date_to_python, uno_time_to_python, python_date_to_uno, python_time_to_uno
 
 
@@ -109,7 +109,7 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
 
         self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, Label='Delete')
-        # No delete service specified in requirements; keep button but no handler
+        self.add_action_listener(self.btn_delete, self._on_delete)
         self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT)
         self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
         self.add_action_listener(self.btn_save, self._on_save)
@@ -233,6 +233,19 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
             self.edt_time.setTime(python_time_to_uno(rec['session_time']))
         if rec.get('price') is not None:
             self.edt_price.setValue(float(rec['price']))
+
+    def _on_delete(self, event=None):
+        if self.session_id is None:
+            return
+        from librepy.app.service.srv_training_session import delete_training_session
+        if not confirm_action("Are you sure you want to delete this training session?", Title="Confirm Delete"):
+            return
+        res = delete_training_session(self.session_id, context=self)
+        if res.get('ok'):
+            self.end_execute(2)
+        else:
+            self.logger.error("Failed to delete training session")
+            msgbox("Failed to delete the training session. Please try again.", "Delete Error")
 
     def _dispose(self):
         pass

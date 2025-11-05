@@ -1,5 +1,6 @@
 from librepy.app.forms.training_session_form import TrainingSessionForm
 from librepy.app.data.dao.teacher_dao import TeacherDAO
+from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
 
 
 def save_training_session(data: dict, context=None) -> dict:
@@ -21,6 +22,14 @@ def save_training_session(data: dict, context=None) -> dict:
     return form.save()
 
 
+def delete_training_session(session_id: int, context=None) -> dict:
+    """Delete a Training Session by id.
+
+    Returns: {"ok": True, "deleted": n} when n > 0, else {"ok": False}
+    """
+    dao = TrainingSessionDAO(getattr(context, "logger", context))
+    n = dao.delete_where(dao.model_class.session_id == session_id, operation_name='delete TrainingSession by id')
+    return {"ok": bool(n and n > 0), "deleted": n or 0}
 
 
 def load_teacher_pairs(context=None):
