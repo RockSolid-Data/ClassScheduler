@@ -49,12 +49,7 @@ class TrainingSessionForm(BaseForm):
         # Inputs
         raw_session_id = self.get("session_id")
         raw_name = self.require("name")
-        # teacher can arrive as 'teacher' or 'teacher_id' - do not double-require
-        raw_teacher = self.get("teacher")
-        if raw_teacher is None:
-            raw_teacher = self.get("teacher_id")
-        if raw_teacher is None and not self.partial:
-            self.add_error("teacher", "This field is required.")
+        raw_teacher = self.require("teacher")
         raw_session_date = self.require("session_date") if not self.partial else self.get("session_date")
         raw_session_time = self.require("session_time") if not self.partial else self.get("session_time")
         raw_price = self.require("price") if not self.partial else self.get("price")

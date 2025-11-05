@@ -8,7 +8,7 @@ def save_training_session(data: dict, context=None) -> dict:
     Validate and persist a Training Session using BaseForm.
 
     Args:
-        data: Dict with keys: name, teacher (teacher_id), session_date,
+        data: Dict with keys: name, teacher, session_date,
               session_time, price; optional session_id for updates.
         context: Optional context object for DAO construction/logging.
 
