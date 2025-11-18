@@ -93,6 +93,23 @@ class SessionAttendeeDAO(BaseDAO):
             return SessionAttendee.get(SessionAttendee.attendee_id == attendee_id)
         return self.safe_execute('get SessionAttendee by id', _q, default_return=None)
 
+    def toggle_attendance(self, attendee_id) -> bool:
+        """Toggle the 'attended' boolean for a given attendee_id.
+
+        Uses Peewee's boolean inversion to generate SQL like: attended = NOT attended
+        Returns True if at least one row was updated, False otherwise.
+        """
+        def _q():
+            aid = attendee_id
+            q = (SessionAttendee
+                 .update(attended=~SessionAttendee.attended)
+                 .where(SessionAttendee.attendee_id == aid))
+            return q.execute()
+
+        affected = self.safe_execute('toggle attendance', _q, default_return=0)
+
+        return bool(affected and affected > 0)
+
     def to_dict(self, inst):
         if inst is None:
             return None

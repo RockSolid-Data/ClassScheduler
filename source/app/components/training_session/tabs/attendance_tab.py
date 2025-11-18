@@ -56,20 +56,25 @@ class AttendanceTab(BaseTab):
         self.grid_base.set_data(rows, heading='id')
 
     def on_row_double_click(self, ev=None):
-        try:
-            if ev and ev.Buttons == 1 and ev.ClickCount == 2:
-                attendee_id = self.grid_base.active_row_heading()
-                if attendee_id is not None:
-                    # Log the attendee id on double click
-                    try:
-                        self.logger.info(f"Attendance grid double-click: attendee id {attendee_id}")
-                    except Exception:
-                        pass
-        except Exception as e:
-            try:
-                self.logger.error(f"AttendanceTab.on_row_double_click error: {e}")
-            except Exception:
-                pass
+        if ev and ev.Buttons == 1 and ev.ClickCount == 2:
+            attendee_id = self.grid_base.active_row_heading()
+            if attendee_id is not None:
+                # Log the attendee id on double click
+                self.logger.info(f"Attendance grid double-click: attendee id {attendee_id}")
+
+                # Toggle attendance and refresh grid
+                try:
+                    dao = SessionAttendeeDAO(self.logger)
+                    ok = dao.toggle_attendance(attendee_id)
+                    if not ok:
+                        try:
+                            self.logger.warning(f"Toggle attendance affected no rows for attendee id {attendee_id}")
+                        except Exception:
+                            pass
+                except Exception as e:
+                    self.logger.error(f"Failed to toggle attendance for {attendee_id}: {e}")
+                finally:
+                    self.load_data()
 
     def commit(self) -> dict:
         # No data contribution yet.
