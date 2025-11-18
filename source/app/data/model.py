@@ -37,6 +37,7 @@ class SessionAttendee(BaseModel):
     phone = CharField(max_length=20, null=True)
     paid = BooleanField(default=False)
     notes = TextField(null=True)
+    attended = BooleanField(default=False)
 
     class Meta:
         # prevent duplicate sign-ups by email within the same session
