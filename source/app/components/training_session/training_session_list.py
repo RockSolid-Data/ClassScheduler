@@ -67,6 +67,24 @@ class TrainingSessionList(ctr_container.Container):
             Border=6
         )
 
+        # Add a "Print List" button with the same flow as calendars
+        try:
+            print_list_x = pos['new_entry_x'] - (pos['top_button_width'] + 10)
+            self.btn_print_list = self.add_button(
+                'btn_print_list',
+                print_list_x, pos['top_button_y'], pos['top_button_width'], pos['top_button_height'],
+                Label='Print List',
+                callback=self.on_print_list,
+                BackgroundColor=0x2C3E50,
+                TextColor=0xFFFFFF,
+                FontWeight=150,
+                FontHeight=12,
+                Border=6
+            )
+        except Exception:
+            # Non-fatal: UI will still work without the extra button
+            self.btn_print_list = None
+
         # Search controls
         self.lbl_search = self.add_label(
             'lbl_search', pos['search_label_x'], pos['search_y'], 60, 14, Label='Search:'
@@ -193,6 +211,31 @@ class TrainingSessionList(ctr_container.Container):
         except Exception as e:
             self.logger.error(f"TrainingSessionList failed to open new entry dialog: {e}")
 
+    def on_print_list(self, ev=None):
+        """Open date range dialog and print the Training Sessions list report."""
+        try:
+            from librepy.app.components.service_appointment.print_list_date_range_dlg import (
+                PrintListDateRangeDialog,
+            )
+            dlg = PrintListDateRangeDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Print List")
+            ret = dlg.execute()
+            if ret == 1:
+                start_date = getattr(dlg, 'selected_start_date', None)
+                end_date = getattr(dlg, 'selected_end_date', None)
+                if not start_date or not end_date:
+                    self.logger.warning("Print List: start and end dates are required")
+                    return
+                from librepy.jasper_report.print_training_sessions_list import (
+                    print_training_sessions_list,
+                )
+                self.logger.info(
+                    f"Printing Training Sessions list for date range: start={start_date}, end={end_date}"
+                )
+                print_training_sessions_list(start_date, end_date)
+                self.logger.info("Training Sessions list report invoked from list view")
+        except Exception as e:
+            self.logger.error(f"Failed to print Training Sessions list: {e}")
+
     def show(self):
         super().show()
         self.load_data()
@@ -223,6 +266,9 @@ class TrainingSessionList(ctr_container.Container):
                 self.txt_search.setPosSize(pos['search_x'], pos['search_y'], pos['search_w'], 14, POSSIZE)
             if hasattr(self, 'btn_new_entry'):
                 self.btn_new_entry.setPosSize(pos['new_entry_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'], POSSIZE)
+            if hasattr(self, 'btn_print_list') and self.btn_print_list is not None:
+                print_list_x = pos['new_entry_x'] - (pos['top_button_width'] + 10)
+                self.btn_print_list.setPosSize(print_list_x, pos['top_button_y'], pos['top_button_width'], pos['top_button_height'], POSSIZE)
             if hasattr(self, 'grid'):
                 self.grid.setPosSize(pos['grid_x'], pos['grid_y'], pos['grid_w'], pos['grid_h'], POSSIZE)
 
