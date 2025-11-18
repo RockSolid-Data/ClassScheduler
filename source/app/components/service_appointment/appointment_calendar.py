@@ -66,14 +66,23 @@ class AppointmentCalendar(Calendar):
             self.logger.error(traceback.format_exc())
 
     def on_print_list(self, event=None):
-        """Open a dialog to pick a start/end date for printing a list and log them."""
+        """Open a dialog to pick a start/end date then generate a Jasper list report."""
         try:
             dlg = PrintListDateRangeDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Print List")
             ret = dlg.execute()
             if ret == 1:
+                start_date = dlg.selected_start_date
+                end_date = dlg.selected_end_date
+                if not start_date or not end_date:
+                    self.logger.warning("Print List: start and end dates are required")
+                    return
+                # Delegate to Jasper report generator for service appointments list
+                from librepy.jasper_report.print_service_appointments_list import print_service_appointments_list
                 self.logger.info(
-                    f"Print List requested for date range: start={dlg.selected_start_date}, end={dlg.selected_end_date}"
+                    f"Printing Service Appointments list for date range: start={start_date}, end={end_date}"
                 )
+                print_service_appointments_list(start_date, end_date)
+                self.logger.info("Service Appointments list report invoked")
         except Exception as e:
             self.logger.error(f"Failed opening Print List dialog: {e}")
             self.logger.error(traceback.format_exc())
