@@ -25,8 +25,22 @@ class EmployeeCalendar(Calendar):
     # Hook implementations
     # ------------------------------
     def on_print(self, event):
-        """Subclass callback for Print button (placeholder)."""
-        self.logger.info("Print requested (EmployeeCalendar) - not implemented yet")
+        """Generate a PDF calendar for the visible date range using JasperReports."""
+        try:
+            start_date, end_date = self.get_display_date_range()
+            if not start_date or not end_date:
+                self.logger.warning("EmployeeCalendar: no date range to print")
+                return
+            from librepy.jasper_report.print_calendar import save_calendar_range_as_pdf
+            from librepy.app.components.calendar.queries import EMPLOYEE_CONTRACTS_QUERY
+
+            query_text = EMPLOYEE_CONTRACTS_QUERY
+            self.logger.info(f"Printing Employee Contracts calendar: {start_date} - {end_date}")
+            save_calendar_range_as_pdf(start_date, end_date, query_text)
+            self.logger.info("Employee Contracts calendar PDF export invoked")
+        except Exception as e:
+            self.logger.error(f"Failed to print Employee Contracts calendar: {e}")
+            self.logger.error(traceback.format_exc())
 
     def on_new_entry(self, event):
         """Open the Employee Contract dialog and refresh calendar on successful save."""
