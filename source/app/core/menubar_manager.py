@@ -83,9 +83,9 @@ class MenubarManager(object):
 
     def settings(self, *args):
         """Show settings dialog"""
-        from librepy.database import db_dialog
+        from librepy.peewee.connection import db_dialog
         
-        from librepy.bootstrap import ensure_database_ready
+        from librepy.boot.bootstrap import ensure_database_ready
         
         dialog = db_dialog.DBDialog(self.ctx, self.parent, self.logger)
         if dialog.execute():
