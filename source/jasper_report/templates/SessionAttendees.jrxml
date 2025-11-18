@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="session_attendees"
+              pageWidth="595" pageHeight="842" columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="b2c2c6c9-58a1-4d5f-9a7d-2d1a6ac7c1c1">
+
+    <!-- Parameters for display and dynamic SQL -->
+    <parameter name="id" class="java.lang.Integer"/>
+    <parameter name="date" class="java.util.Date"/>
+    <parameter name="time" class="java.lang.String"/>
+    <parameter name="name" class="java.lang.String"/>
+    <parameter name="title" class="java.lang.String"/>
+    <parameter name="query_text" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[$P!{query_text}]]>
+    </queryString>
+
+    <!-- Fields returned by the query -->
+    <field name="attendee_id" class="java.lang.Integer"/>
+    <field name="name" class="java.lang.String"/>
+    <field name="email" class="java.lang.String"/>
+    <field name="phone" class="java.lang.String"/>
+    <field name="paid" class="java.lang.String"/>
+
+    <!-- Title band showing the session details -->
+    <title>
+        <band height="70">
+            <textField>
+                <reportElement x="0" y="0" width="555" height="22" uuid="a1c9b0e4-1a0a-4d4f-9a4a-7de39f8d0b01"/>
+                <textElement textAlignment="Center">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="30" width="60" height="16" uuid="f3b6c2a5-9d39-42e2-bd7f-5f0fb5a3f1a1"/>
+                <textElement><font isBold="true"/></textElement>
+                <text><![CDATA[Session:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="65" y="30" width="490" height="16" uuid="c41b8a1c-5c3f-4eae-9d6c-2a6d4b6d8e99"/>
+                <textFieldExpression><![CDATA[$P{name} + " (ID: " + $P{id} + ")"]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="50" width="60" height="16" uuid="3d2c2b3a-9c0e-4b3f-8d7a-6b6a3f2d1c0b"/>
+                <textElement><font isBold="true"/></textElement>
+                <text><![CDATA[Date/Time:]]></text>
+            </staticText>
+            <textField pattern="yyyy-MM-dd">
+                <reportElement x="65" y="50" width="140" height="16" uuid="7e6d5c4b-3a2f-4e1d-9c8b-5a4f3e2d1c0b"/>
+                <textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="210" y="50" width="120" height="16" uuid="a7b6c5d4-e3f2-4a1b-9c8d-7e6f5a4b3c2d"/>
+                <textFieldExpression><![CDATA[$P{time}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <!-- Column Header for table -->
+    <columnHeader>
+        <band height="18">
+            <staticText>
+                <reportElement x="0" y="0" width="60" height="18" uuid="c5a9ce5a-2fb4-4c77-9a9a-2c1e4f5b6a7c"/>
+                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="62" y="0" width="160" height="18" uuid="e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8a9b"/>
+                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <text><![CDATA[Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="224" y="0" width="180" height="18" uuid="0a1b2c3d-4e5f-6071-8293-94a5b6c7d8e9"/>
+                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="406" y="0" width="90" height="18" uuid="10293847-5647-4839-1029-384756473829"/>
+                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <text><![CDATA[Phone]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="498" y="0" width="57" height="18" uuid="91827364-5463-7263-8192-837465564738"/>
+                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <text><![CDATA[Paid]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detail rows -->
+    <detail>
+        <band height="16">
+            <textField>
+                <reportElement x="0" y="0" width="60" height="16" uuid="1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{attendee_id}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="62" y="0" width="160" height="16" uuid="22334455-6677-8899-aabb-ccddeeff0011"/>
+                <textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="224" y="0" width="180" height="16" uuid="33445566-7788-99aa-bbcc-ddeeff001122"/>
+                <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="406" y="0" width="90" height="16" uuid="44556677-8899-aabb-ccdd-eeff00112233"/>
+                <textFieldExpression><![CDATA[$F{phone}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="498" y="0" width="57" height="16" uuid="55667788-99aa-bbcc-ddee-ff0011223344"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{paid}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>

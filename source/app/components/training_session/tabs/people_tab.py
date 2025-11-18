@@ -17,6 +17,7 @@ class PeopleTab(BaseTab):
         self.grid_base = None
         self.grid = None
         self.btn_new_entry = None
+        self.btn_print = None
         self.listeners = Listeners()
 
     def build(self):
@@ -25,7 +26,7 @@ class PeopleTab(BaseTab):
         page_height = self.dialog.POS_SIZE[3] - (self.dialog.MARGIN * 3) - self.dialog.BUTTON_HEIGHT + 30
         pad = 5
 
-        # Top-right New Entry button
+        # Top-right New Entry and Print buttons
         btn_w, btn_h = 70, 10
         btn_y = 5
         btn_x = page_width - pad - btn_w
@@ -34,6 +35,17 @@ class PeopleTab(BaseTab):
             callback=self.on_new_entry,
             page=self.page,
             Label='New Entry',
+            FontWeight=100,
+            FontHeight=12,
+        )
+
+        # Print button to the left of New Entry
+        print_x = btn_x - (btn_w + 6)
+        self.btn_print = self.dialog.add_button(
+            'BtnAttendeePrint', print_x, btn_y, btn_w, btn_h,
+            callback=self.on_print,
+            page=self.page,
+            Label='Print',
             FontWeight=100,
             FontHeight=12,
         )
@@ -71,6 +83,37 @@ class PeopleTab(BaseTab):
         ret = dlg.execute()
         if ret in (1, 2):
             self.load_data()
+
+    def on_print(self, ev=None):
+        """Print attendees report for this session using Jasper template."""
+        try:
+            if not self.session_id:
+                return
+            # Load session details for title parameters
+            from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
+            dao = TrainingSessionDAO(self.logger)
+            rec = dao.get_by_id(self.session_id)
+            if rec and not isinstance(rec, dict):
+                rec = dao.to_dict(rec)
+
+            session_name = (rec or {}).get('name') or ''
+            session_date = (rec or {}).get('session_date')
+            session_time = (rec or {}).get('session_time')
+
+            # Delegate to report generator
+            from librepy.jasper_report.print_session_attendees import print_session_attendees
+            print_session_attendees(
+                session_id=self.session_id,
+                session_date=session_date,
+                session_time=session_time,
+                session_name=session_name,
+            )
+        except Exception as e:
+            # Log but avoid raising inside UI callback
+            try:
+                self.logger.error(f"Failed to print attendees report: {e}")
+            except Exception:
+                pass
 
     def on_row_double_click(self, ev=None):
         if ev.Buttons == 1 and ev.ClickCount == 2:
