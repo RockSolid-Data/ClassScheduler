@@ -121,6 +121,10 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
         payload.setdefault('session_id', self.session_id)
         return payload
 
+    def refresh_attendance_tab(self):
+        if self.attendance_tab is not None:
+            self.attendance_tab.load_data()
+
     def _on_save(self, event=None):
         from librepy.app.service.srv_training_session import save_training_session
         payload = self.commit()

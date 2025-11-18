@@ -83,6 +83,8 @@ class PeopleTab(BaseTab):
         ret = dlg.execute()
         if ret in (1, 2):
             self.load_data()
+            if self.dialog is not None:
+                self.dialog.refresh_attendance_tab()
 
     def on_print(self, ev=None):
         """Print attendees report for this session using Jasper template."""
@@ -125,6 +127,9 @@ class PeopleTab(BaseTab):
             ret = dlg.execute()
             if ret in (1, 2):
                 self.load_data()
+                # Keep Attendance tab in sync with People updates
+                if self.dialog is not None:
+                    self.dialog.refresh_attendance_tab()
 
     def load_data(self):
         if not self.session_id:
