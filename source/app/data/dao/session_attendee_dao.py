@@ -68,11 +68,11 @@ class SessionAttendeeDAO(BaseDAO):
         """Return list of dicts for Attendance tab grid.
 
         Only includes attendees with paid == True, because attendance only counts if payment.
-        Keys per row: name, attendance (maps to model.attended)
+        Keys per row: id, name, attendance (attendance maps to model.attended)
         """
         def _query():
             q = (SessionAttendee
-                 .select(SessionAttendee.name, SessionAttendee.attended)
+                 .select(SessionAttendee.attendee_id, SessionAttendee.name, SessionAttendee.attended)
                  .where(
                      (SessionAttendee.session == int(session_id)) &
                      (SessionAttendee.paid == True)
@@ -81,6 +81,7 @@ class SessionAttendeeDAO(BaseDAO):
             rows = []
             for a in q:
                 rows.append({
+                    'id': getattr(a, 'attendee_id', None),
                     'name': getattr(a, 'name', '') or '',
                     'attendance': bool(getattr(a, 'attended', False)),
                 })

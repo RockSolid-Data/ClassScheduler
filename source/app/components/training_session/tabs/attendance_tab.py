@@ -1,4 +1,5 @@
 from librepy.app.components.settings.tabs.base_tab import BaseTab
+from librepy.pybrex.listeners import Listeners
 from librepy.app.data.dao.session_attendee_dao import SessionAttendeeDAO
 
 
@@ -11,6 +12,7 @@ class AttendanceTab(BaseTab):
         self.session_id = session_id
         self.grid_base = None
         self.grid = None
+        self.listeners = Listeners()
 
     def build(self):
         # Compute page-relative geometry similar to PeopleTab
@@ -37,16 +39,37 @@ class AttendanceTab(BaseTab):
             ShowRowHeader=False,
         )
 
+        # Add double-click listener to log attendee id
+        self.listeners.add_mouse_listener(self.grid, pressed=self.on_row_double_click)
+
         # Initial load
         self.load_data()
 
     def load_data(self):
         if not self.session_id:
-            self.grid_base.set_data([], heading='name')
+            # Use 'id' as heading for proper row identity, even if empty
+            self.grid_base.set_data([], heading='id')
             return
         dao = SessionAttendeeDAO(self.logger)
         rows = dao.get_attendance_for_grid(self.session_id) or []
-        self.grid_base.set_data(rows, heading='name')
+        # Set heading to 'id' so active_row_heading returns attendee id
+        self.grid_base.set_data(rows, heading='id')
+
+    def on_row_double_click(self, ev=None):
+        try:
+            if ev and ev.Buttons == 1 and ev.ClickCount == 2:
+                attendee_id = self.grid_base.active_row_heading()
+                if attendee_id is not None:
+                    # Log the attendee id on double click
+                    try:
+                        self.logger.info(f"Attendance grid double-click: attendee id {attendee_id}")
+                    except Exception:
+                        pass
+        except Exception as e:
+            try:
+                self.logger.error(f"AttendanceTab.on_row_double_click error: {e}")
+            except Exception:
+                pass
 
     def commit(self) -> dict:
         # No data contribution yet.
