@@ -12,7 +12,7 @@
     <parameter name="end_date" class="java.util.Date"/>
     <parameter name="title" class="java.lang.String"/>
 
-    <!-- Embedded query using the provided date parameters -->
+    <!-- Query -->
     <queryString>
         <![CDATA[
 SELECT
@@ -29,7 +29,7 @@ ORDER BY appointment_date, appointment_time
         ]]>
     </queryString>
 
-    <!-- Fields returned by the query -->
+    <!-- Fields -->
     <field name="service_apt_id" class="java.lang.Integer"/>
     <field name="name" class="java.lang.String"/>
     <field name="phone_number" class="java.lang.String"/>
@@ -40,53 +40,73 @@ ORDER BY appointment_date, appointment_time
 
     <!-- Title -->
     <title>
-        <band height="50">
+        <band height="40">
             <textField>
-                <reportElement x="0" y="0" width="555" height="20" uuid="b05a2c2f-6c9a-4f51-8d1c-9c9a2dcde111"/>
+                <reportElement x="0" y="0" width="555" height="30"/>
                 <textElement textAlignment="Center">
-                    <font size="16" isBold="true"/>
+                    <font size="14" isBold="true"/>
                 </textElement>
                 <textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
             </textField>
         </band>
     </title>
 
-    <!-- Column headers -->
+    <!-- Column Headers -->
     <columnHeader>
-        <band height="36">
+        <band height="18">
             <staticText>
-                <reportElement x="0" y="0" width="60" height="18" uuid="a1111111-1111-1111-1111-111111111111"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
-                <text><![CDATA[ID]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="62" y="0" width="150" height="18" uuid="b2222222-2222-2222-2222-222222222222"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
-                <text><![CDATA[Name]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="214" y="0" width="120" height="18" uuid="c3333333-3333-3333-3333-333333333333"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
-                <text><![CDATA[Phone]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="336" y="0" width="219" height="18" uuid="d4444444-4444-4444-4444-444444444444"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
-                <text><![CDATA[Email]]></text>
-            </staticText>
-            <staticText>
-                <reportElement x="0" y="18" width="120" height="18" uuid="e5555555-5555-5555-5555-555555555555"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <reportElement x="0" y="0" width="65" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
                 <text><![CDATA[Appt Date]]></text>
             </staticText>
+
             <staticText>
-                <reportElement x="122" y="18" width="90" height="18" uuid="f6666666-6666-6666-6666-666666666666"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
-                <text><![CDATA[Appt Time]]></text>
+                <reportElement x="65" y="0" width="50" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Time]]></text>
             </staticText>
+
             <staticText>
-                <reportElement x="214" y="18" width="341" height="18" uuid="a7777777-7777-7777-7777-777777777777"/>
-                <textElement textAlignment="Center"><font isBold="true"/></textElement>
+                <reportElement x="115" y="0" width="30" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="145" y="0" width="120" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Name]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="265" y="0" width="80" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Phone]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="345" y="0" width="120" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Email]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="465" y="0" width="90" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
                 <text><![CDATA[Notes]]></text>
             </staticText>
         </band>
@@ -94,35 +114,47 @@ ORDER BY appointment_date, appointment_time
 
     <!-- Detail rows -->
     <detail>
-        <band height="36">
+        <band height="18">
+            <!-- Appt Date -->
+            <textField pattern="yyyy-MM-dd">
+                <reportElement x="0" y="0" width="65" height="18"/>
+                <textFieldExpression><![CDATA[$F{appointment_date}]]></textFieldExpression>
+            </textField>
+
+            <!-- Appt Time -->
+            <textField pattern="HH:mm">
+                <reportElement x="65" y="0" width="50" height="18"/>
+                <textFieldExpression><![CDATA[$F{appointment_time}]]></textFieldExpression>
+            </textField>
+
+            <!-- ID -->
             <textField>
-                <reportElement x="0" y="0" width="60" height="18" uuid="a8888888-8888-8888-8888-888888888888"/>
+                <reportElement x="115" y="0" width="30" height="18"/>
                 <textElement textAlignment="Center"/>
                 <textFieldExpression><![CDATA[$F{service_apt_id}]]></textFieldExpression>
             </textField>
+
+            <!-- Name -->
             <textField>
-                <reportElement x="62" y="0" width="150" height="18" uuid="b9999999-9999-9999-9999-999999999999"/>
+                <reportElement x="145" y="0" width="120" height="18"/>
                 <textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
             </textField>
+
+            <!-- Phone -->
             <textField>
-                <reportElement x="214" y="0" width="120" height="18" uuid="caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"/>
+                <reportElement x="265" y="0" width="80" height="18"/>
                 <textFieldExpression><![CDATA[$F{phone_number}]]></textFieldExpression>
             </textField>
+
+            <!-- Email -->
             <textField>
-                <reportElement x="336" y="0" width="219" height="18" uuid="dbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"/>
+                <reportElement x="345" y="0" width="120" height="18"/>
                 <textFieldExpression><![CDATA[$F{email}]]></textFieldExpression>
             </textField>
 
-            <textField pattern="yyyy-MM-dd">
-                <reportElement x="0" y="18" width="120" height="18" uuid="eccccccc-cccc-cccc-cccc-cccccccccccc"/>
-                <textFieldExpression><![CDATA[$F{appointment_date}]]></textFieldExpression>
-            </textField>
-            <textField pattern="HH:mm">
-                <reportElement x="122" y="18" width="90" height="18" uuid="fddddddd-dddd-dddd-dddd-dddddddddddd"/>
-                <textFieldExpression><![CDATA[$F{appointment_time}]]></textFieldExpression>
-            </textField>
+            <!-- Notes -->
             <textField isStretchWithOverflow="true">
-                <reportElement x="214" y="18" width="341" height="18" uuid="aeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"/>
+                <reportElement x="465" y="0" width="90" height="18"/>
                 <textFieldExpression><![CDATA[$F{notes}]]></textFieldExpression>
             </textField>
         </band>
