@@ -59,7 +59,7 @@ class SessionAttendeeDAO(BaseDAO):
                     'name': getattr(a, 'name', '') or '',
                     'email': getattr(a, 'email', '') or '',
                     'phone': getattr(a, 'phone', '') or '',
-                    'paid': bool(getattr(a, 'paid', False)),
+                    'paid': 'Yes' if bool(getattr(a, 'paid', False)) else 'No',
                 })
             return rows
         return self.safe_execute('get attendees for session (grid)', _query, default_return=[])
@@ -83,7 +83,7 @@ class SessionAttendeeDAO(BaseDAO):
                 rows.append({
                     'id': getattr(a, 'attendee_id', None),
                     'name': getattr(a, 'name', '') or '',
-                    'attendance': bool(getattr(a, 'attended', False)),
+                    'attendance': 'Yes' if bool(getattr(a, 'attended', False)) else 'No',
                 })
             return rows
         return self.safe_execute('get attendance for session (paid only)', _query, default_return=[])
