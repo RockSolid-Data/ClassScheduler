@@ -1,6 +1,9 @@
 from librepy.app.components.calendar.calendar_view import Calendar
 from librepy.app.data.dao.service_appointment_dao import ServiceAppointmentDAO
 from librepy.app.components.service_appointment.service_appt_dlg import ServiceAppointmentDialog
+from librepy.app.components.service_appointment.print_list_date_range_dlg import (
+    PrintListDateRangeDialog,
+)
 import calendar as py_calendar
 import traceback
 
@@ -18,6 +21,28 @@ class AppointmentCalendar(Calendar):
 
     def __init__(self, parent, ctx, smgr, frame, ps):
         super().__init__(parent, ctx, smgr, frame, ps, title="Service Appointments")
+        # Add a "Print List" button specific to Service Appointments
+        pos = self._calculate_positions()
+        # Place it to the left of the base "New Entry" and "Print" buttons
+        top_width = pos['top_button_width']
+        top_height = pos['top_button_height']
+        top_y = pos['top_button_y']
+        # Keep spacing consistent with base layout (10px)
+        x = pos['new_entry_x'] - (top_width + 10)
+        self.btn_print_list = self.add_button(
+            "btnPrintList",
+            x,
+            top_y,
+            top_width,
+            top_height,
+            Label="Print List",
+            callback=self.on_print_list,
+            BackgroundColor=0x2C3E50,
+            TextColor=0xFFFFFF,
+            FontWeight=150,
+            FontHeight=12,
+            Border=6,
+        )
 
     # ------------------------------
     # Hook implementations
@@ -38,6 +63,19 @@ class AppointmentCalendar(Calendar):
             self.logger.info("Service Appointments calendar PDF export invoked")
         except Exception as e:
             self.logger.error(f"Failed to print Service Appointments calendar: {e}")
+            self.logger.error(traceback.format_exc())
+
+    def on_print_list(self, event=None):
+        """Open a dialog to pick a start/end date for printing a list and log them."""
+        try:
+            dlg = PrintListDateRangeDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Print List")
+            ret = dlg.execute()
+            if ret == 1:
+                self.logger.info(
+                    f"Print List requested for date range: start={dlg.selected_start_date}, end={dlg.selected_end_date}"
+                )
+        except Exception as e:
+            self.logger.error(f"Failed opening Print List dialog: {e}")
             self.logger.error(traceback.format_exc())
 
     def on_new_entry(self, event):
