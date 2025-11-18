@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="training_sessions_list"
+              pageWidth="595" pageHeight="842" columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20"
+              uuid="5a9d3f1e-7f6e-42f2-9ac6-1d6a4d2a1b77">
+
+    <!-- Parameters -->
+    <parameter name="start_date" class="java.util.Date"/>
+    <parameter name="end_date" class="java.util.Date"/>
+    <parameter name="title" class="java.lang.String"/>
+
+    <!-- Query based on user's spec; parameterized for Jasper -->
+    <queryString>
+        <![CDATA[
+SELECT
+    ts.session_id,
+    ts.name,
+    ts.session_date,
+    ts.session_time,
+    ts.price,
+    COUNT(sa.attendee_id) AS enrolled_count
+FROM class_scheduler_admin.trainingsession ts
+LEFT JOIN class_scheduler_admin.sessionattendee sa
+    ON ts.session_id = sa.session_id
+WHERE ts.session_date BETWEEN $P{start_date} AND $P{end_date}
+GROUP BY
+    ts.session_id,
+    ts.name,
+    ts.session_date,
+    ts.session_time,
+    ts.price
+ORDER BY ts.session_date, ts.session_time
+        ]]>
+    </queryString>
+
+    <!-- Fields -->
+    <field name="session_id" class="java.lang.Integer"/>
+    <field name="name" class="java.lang.String"/>
+    <field name="session_date" class="java.util.Date"/>
+    <field name="session_time" class="java.sql.Time"/>
+    <field name="price" class="java.math.BigDecimal"/>
+    <field name="enrolled_count" class="java.lang.Long"/>
+
+    <!-- Title -->
+    <title>
+        <band height="40">
+            <textField>
+                <reportElement x="0" y="0" width="555" height="30"/>
+                <textElement textAlignment="Center">
+                    <font size="14" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{title}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <!-- Column Headers -->
+    <columnHeader>
+        <band height="18">
+            <staticText>
+                <reportElement x="0" y="0" width="75" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Date]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="75" y="0" width="55" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Time]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="130" y="0" width="35" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="165" y="0" width="210" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Name]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="375" y="0" width="75" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Price]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="450" y="0" width="105" height="18"/>
+                <textElement textAlignment="Center">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Enrolled]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detail rows -->
+    <detail>
+        <band height="18">
+            <!-- Date -->
+            <textField pattern="yyyy-MM-dd">
+                <reportElement x="0" y="0" width="75" height="18"/>
+                <textFieldExpression><![CDATA[$F{session_date}]]></textFieldExpression>
+            </textField>
+
+            <!-- Time -->
+            <textField pattern="HH:mm">
+                <reportElement x="75" y="0" width="55" height="18"/>
+                <textFieldExpression><![CDATA[$F{session_time}]]></textFieldExpression>
+            </textField>
+
+            <!-- ID -->
+            <textField>
+                <reportElement x="130" y="0" width="35" height="18"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{session_id}]]></textFieldExpression>
+            </textField>
+
+            <!-- Name -->
+            <textField>
+                <reportElement x="165" y="0" width="210" height="18"/>
+                <textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+            </textField>
+
+            <!-- Price -->
+            <textField pattern="$ #,##0.00">
+                <reportElement x="375" y="0" width="75" height="18"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA[$F{price}]]></textFieldExpression>
+            </textField>
+
+            <!-- Enrolled count -->
+            <textField>
+                <reportElement x="450" y="0" width="105" height="18"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{enrolled_count}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>

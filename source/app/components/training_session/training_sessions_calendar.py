@@ -1,6 +1,9 @@
 from librepy.app.components.calendar.calendar_view import Calendar
 from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
 from librepy.app.components.training_session.training_session_entry_dlg import TrainingSessionEntryDlg
+from librepy.app.components.service_appointment.print_list_date_range_dlg import (
+    PrintListDateRangeDialog,
+)
 import calendar as py_calendar
 import traceback
 
@@ -18,6 +21,30 @@ class TrainingSessionsCalendar(Calendar):
 
     def __init__(self, parent, ctx, smgr, frame, ps):
         super().__init__(parent, ctx, smgr, frame, ps, title="Training Sessions")
+        # Add a "Print List" button like Service Appointments
+        try:
+            pos = self._calculate_positions()
+            top_width = pos['top_button_width']
+            top_height = pos['top_button_height']
+            top_y = pos['top_button_y']
+            x = pos['new_entry_x'] - (top_width + 10)
+            self.btn_print_list = self.add_button(
+                "btnPrintList",
+                x,
+                top_y,
+                top_width,
+                top_height,
+                Label="Print List",
+                callback=self.on_print_list,
+                BackgroundColor=0x2C3E50,
+                TextColor=0xFFFFFF,
+                FontWeight=150,
+                FontHeight=12,
+                Border=6,
+            )
+        except Exception:
+            # Fail-safe: don't break UI if positioning fails
+            pass
 
     # ------------------------------
     # Hook implementations
@@ -57,6 +84,29 @@ class TrainingSessionsCalendar(Calendar):
                         self._update_calendar()
         except Exception as e:
             self.logger.error(f"Failed to open Training Session dialog: {e}")
+            self.logger.error(traceback.format_exc())
+
+    def on_print_list(self, event=None):
+        """Open a dialog to select date range and print training sessions list."""
+        try:
+            dlg = PrintListDateRangeDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Print List")
+            ret = dlg.execute()
+            if ret == 1:
+                start_date = dlg.selected_start_date
+                end_date = dlg.selected_end_date
+                if not start_date or not end_date:
+                    self.logger.warning("Print List: start and end dates are required")
+                    return
+                from librepy.jasper_report.print_training_sessions_list import (
+                    print_training_sessions_list,
+                )
+                self.logger.info(
+                    f"Printing Training Sessions list for date range: start={start_date}, end={end_date}"
+                )
+                print_training_sessions_list(start_date, end_date)
+                self.logger.info("Training Sessions list report invoked")
+        except Exception as e:
+            self.logger.error(f"Failed opening Print List dialog: {e}")
             self.logger.error(traceback.format_exc())
 
     def on_entry_click(self, ev, entry_id=None):
