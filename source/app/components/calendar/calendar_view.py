@@ -555,22 +555,7 @@ class Calendar(ctr_container.Container):
     # Action hooks (to be implemented by subclasses as needed)
     def on_print(self, event):
         """Hook: Handle Print button click. Base: no-op."""
-        try:
-            self.logger.info("Print Calendar clicked")
-            start_date, end_date = self.get_display_date_range()
-            if not start_date or not end_date:
-                self.logger.warning("No calendar range available to print")
-                return
-            from librepy.jasper_report.print_calendar import save_calendar_range_as_pdf
-            from librepy.app.components.calendar.queries import CALENDAR_EVENTS_QUERY
-
-            query_text = CALENDAR_EVENTS_QUERY
-            self.logger.info(f"Invoking PDF export for range {start_date} - {end_date}")
-            save_calendar_range_as_pdf(start_date, end_date, query_text)
-            self.logger.info("Calendar PDF export invoked successfully")
-        except Exception as e:
-            self.logger.error(f"Error printing calendar: {e}")
-            self.logger.error(traceback.format_exc())
+        return
 
     def on_new_entry(self, event):
         """Hook: Handle New Entry button click. Base: no-op."""
