@@ -11,7 +11,7 @@ class EmployeeContractDialog(dialog.DialogBase):
     Buttons: Cancel/Save (new), Delete/Cancel/Save (edit)
     """
 
-    POS_SIZE = 0, 0, 400, 260
+    POS_SIZE = 0, 0, 520, 300
 
     MARGIN = 32
     ROW_SPACING = 10
@@ -70,6 +70,19 @@ class EmployeeContractDialog(dialog.DialogBase):
         # time_out
         self.add_label('LblOut', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Time Out', **label_kwargs)
         self.edt_out = self.add_time('EdtOut', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, Spin=True, StrictFormat=False, TimeFormat=2)
+        y += self.FIELD_HEIGHT + self.ROW_SPACING
+
+        self.add_label('LblWorkingDays', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Working Days', **label_kwargs)
+
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        field_x = x + self.lbl_width
+        chk_width = 40
+        gap = 2
+        self.chk_working_days = []
+        for i, d in enumerate(days):
+            cx = field_x + i * (chk_width + gap)
+            chk = self.add_check(f'Chk{d}', cx, y - 1, chk_width, self.FIELD_HEIGHT, Label=d)
+            self.chk_working_days.append(chk)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
         if self.contract_id is None:
