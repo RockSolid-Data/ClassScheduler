@@ -30,7 +30,8 @@
     <title>
         <band height="70">
             <textField>
-                <reportElement x="0" y="0" width="555" height="22" uuid="a1c9b0e4-1a0a-4d4f-9a4a-7de39f8d0b01"/>
+                <reportElement x="0" y="0" width="555" height="22"
+                               uuid="a1c9b0e4-1a0a-4d4f-9a4a-7de39f8d0b01"/>
                 <textElement textAlignment="Center">
                     <font size="16" isBold="true"/>
                 </textElement>
@@ -38,30 +39,35 @@
             </textField>
 
             <staticText>
-                <reportElement x="0" y="30" width="60" height="16" uuid="f3b6c2a5-9d39-42e2-bd7f-5f0fb5a3f1a1"/>
+                <reportElement x="0" y="30" width="60" height="16"
+                               uuid="f3b6c2a5-9d39-42e2-bd7f-5f0fb5a3f1a1"/>
                 <textElement>
                     <font isBold="true"/>
                 </textElement>
                 <text><![CDATA[Session:]]></text>
             </staticText>
             <textField>
-                <reportElement x="65" y="30" width="490" height="16" uuid="c41b8a1c-5c3f-4eae-9d6c-2a6d4b6d8e99"/>
+                <reportElement x="65" y="30" width="490" height="16"
+                               uuid="c41b8a1c-5c3f-4eae-9d6c-2a6d4b6d8e99"/>
                 <textFieldExpression><![CDATA[$P{name} + " (ID: " + $P{id} + ")"]]></textFieldExpression>
             </textField>
 
             <staticText>
-                <reportElement x="0" y="50" width="60" height="16" uuid="3d2c2b3a-9c0e-4b3f-8d7a-6b6a3f2d1c0b"/>
+                <reportElement x="0" y="50" width="60" height="16"
+                               uuid="3d2c2b3a-9c0e-4b3f-8d7a-6b6a3f2d1c0b"/>
                 <textElement>
                     <font isBold="true"/>
                 </textElement>
                 <text><![CDATA[Date/Time:]]></text>
             </staticText>
             <textField pattern="yyyy-MM-dd">
-                <reportElement x="65" y="50" width="140" height="16" uuid="7e6d5c4b-3a2f-4e1d-9c8b-5a4f3e2d1c0b"/>
+                <reportElement x="65" y="50" width="140" height="16"
+                               uuid="7e6d5c4b-3a2f-4e1d-9c8b-5a4f3e2d1c0b"/>
                 <textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
             </textField>
             <textField>
-                <reportElement x="210" y="50" width="120" height="16" uuid="a7b6c5d4-e3f2-4a1b-9c8d-7e6f5a4b3c2d"/>
+                <reportElement x="210" y="50" width="120" height="16"
+                               uuid="a7b6c5d4-e3f2-4a1b-9c8d-7e6f5a4b3c2d"/>
                 <textFieldExpression><![CDATA[$P{time}]]></textFieldExpression>
             </textField>
         </band>
@@ -86,7 +92,7 @@
 
             <!-- Name -->
             <staticText>
-                <reportElement x="62" y="0" width="160" height="20"
+                <reportElement x="60" y="0" width="160" height="20"
                                mode="Opaque" backcolor="#E0E0E0"
                                uuid="e6f7a8b9-c0d1-4e2f-9a3b-4c5d6e7f8a9b"/>
                 <box>
@@ -100,7 +106,7 @@
 
             <!-- Email -->
             <staticText>
-                <reportElement x="224" y="0" width="180" height="20"
+                <reportElement x="220" y="0" width="180" height="20"
                                mode="Opaque" backcolor="#E0E0E0"
                                uuid="0a1b2c3d-4e5f-6071-8293-94a5b6c7d8e9"/>
                 <box>
@@ -114,7 +120,7 @@
 
             <!-- Phone -->
             <staticText>
-                <reportElement x="406" y="0" width="90" height="20"
+                <reportElement x="400" y="0" width="90" height="20"
                                mode="Opaque" backcolor="#E0E0E0"
                                uuid="10293847-5647-4839-1029-384756473829"/>
                 <box>
@@ -128,7 +134,7 @@
 
             <!-- Paid -->
             <staticText>
-                <reportElement x="498" y="0" width="57" height="20"
+                <reportElement x="490" y="0" width="65" height="20"
                                mode="Opaque" backcolor="#E0E0E0"
                                uuid="91827364-5463-7263-8192-837465564738"/>
                 <box>
@@ -158,7 +164,7 @@
 
             <!-- Name -->
             <textField>
-                <reportElement x="62" y="0" width="160" height="20"
+                <reportElement x="60" y="0" width="160" height="20"
                                uuid="22334455-6677-8899-aabb-ccddeeff0011"/>
                 <box>
                     <pen lineWidth="0.5"/>
@@ -169,7 +175,7 @@
 
             <!-- Email -->
             <textField>
-                <reportElement x="224" y="0" width="180" height="20"
+                <reportElement x="220" y="0" width="180" height="20"
                                uuid="33445566-7788-99aa-bbcc-ddeeff001122"/>
                 <box>
                     <pen lineWidth="0.5"/>
@@ -180,7 +186,7 @@
 
             <!-- Phone -->
             <textField>
-                <reportElement x="406" y="0" width="90" height="20"
+                <reportElement x="400" y="0" width="90" height="20"
                                uuid="44556677-8899-aabb-ccdd-eeff00112233"/>
                 <box>
                     <pen lineWidth="0.5"/>
@@ -191,7 +197,7 @@
 
             <!-- Paid -->
             <textField>
-                <reportElement x="498" y="0" width="57" height="20"
+                <reportElement x="490" y="0" width="65" height="20"
                                uuid="55667788-99aa-bbcc-ddee-ff0011223344"/>
                 <box>
                     <pen lineWidth="0.5"/>
