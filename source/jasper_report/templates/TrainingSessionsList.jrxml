@@ -61,9 +61,20 @@ ORDER BY ts.session_date, ts.session_time
     <columnHeader>
         <band height="20">
 
+            <!-- ID -->
+            <staticText>
+                <reportElement x="0" y="0" width="35" height="20"
+                               mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+
             <!-- Date -->
             <staticText>
-                <reportElement x="0" y="0" width="75" height="20"
+                <reportElement x="35" y="0" width="75" height="20"
                                mode="Opaque" backcolor="#E0E0E0"/>
                 <box><pen lineWidth="0.5"/></box>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
@@ -74,24 +85,13 @@ ORDER BY ts.session_date, ts.session_time
 
             <!-- Time -->
             <staticText>
-                <reportElement x="75" y="0" width="55" height="20"
+                <reportElement x="110" y="0" width="55" height="20"
                                mode="Opaque" backcolor="#E0E0E0"/>
                 <box><pen lineWidth="0.5"/></box>
                 <textElement textAlignment="Center" verticalAlignment="Middle">
                     <font isBold="true"/>
                 </textElement>
                 <text><![CDATA[Time]]></text>
-            </staticText>
-
-            <!-- ID -->
-            <staticText>
-                <reportElement x="130" y="0" width="35" height="20"
-                               mode="Opaque" backcolor="#E0E0E0"/>
-                <box><pen lineWidth="0.5"/></box>
-                <textElement textAlignment="Center" verticalAlignment="Middle">
-                    <font isBold="true"/>
-                </textElement>
-                <text><![CDATA[ID]]></text>
             </staticText>
 
             <!-- Name -->
@@ -133,9 +133,17 @@ ORDER BY ts.session_date, ts.session_time
     <detail>
         <band height="20">
 
+            <!-- ID -->
+            <textField>
+                <reportElement x="0" y="0" width="35" height="20"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{session_id}]]></textFieldExpression>
+            </textField>
+
             <!-- Date -->
             <textField pattern="yyyy-MM-dd">
-                <reportElement x="0" y="0" width="75" height="20"/>
+                <reportElement x="35" y="0" width="75" height="20"/>
                 <box><pen lineWidth="0.5"/></box>
                 <textElement textAlignment="Center" verticalAlignment="Middle"/>
                 <textFieldExpression><![CDATA[$F{session_date}]]></textFieldExpression>
@@ -143,18 +151,10 @@ ORDER BY ts.session_date, ts.session_time
 
             <!-- Time -->
             <textField pattern="HH:mm">
-                <reportElement x="75" y="0" width="55" height="20"/>
+                <reportElement x="110" y="0" width="55" height="20"/>
                 <box><pen lineWidth="0.5"/></box>
                 <textElement textAlignment="Center" verticalAlignment="Middle"/>
                 <textFieldExpression><![CDATA[$F{session_time}]]></textFieldExpression>
-            </textField>
-
-            <!-- ID -->
-            <textField>
-                <reportElement x="130" y="0" width="35" height="20"/>
-                <box><pen lineWidth="0.5"/></box>
-                <textElement textAlignment="Center" verticalAlignment="Middle"/>
-                <textFieldExpression><![CDATA[$F{session_id}]]></textFieldExpression>
             </textField>
 
             <!-- Name -->
