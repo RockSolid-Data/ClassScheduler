@@ -22,8 +22,8 @@ SELECT
     ts.session_time,
     ts.price,
     COUNT(sa.attendee_id) AS enrolled_count
-FROM class_scheduler_admin.trainingsession ts
-LEFT JOIN class_scheduler_admin.sessionattendee sa
+FROM class_scheduler.trainingsession ts
+LEFT JOIN class_scheduler.sessionattendee sa
     ON ts.session_id = sa.session_id
 WHERE ts.session_date BETWEEN $P{start_date} AND $P{end_date}
 GROUP BY

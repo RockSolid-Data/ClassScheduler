@@ -83,10 +83,6 @@ def precopy_all_templates():
         logger.info(f"Pre-copy complete. Total templates copied: {copied}")
         if copied == 0:
             try:
-                from librepy import librepy_api as _lp
-            except Exception:
-                pass
-            try:
                 doc_url = thisComponent.URL if 'thisComponent' in globals() else None
                 if doc_url:
                     doc_path = uno.fileUrlToSystemPath(doc_url)

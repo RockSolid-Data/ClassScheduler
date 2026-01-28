@@ -85,7 +85,7 @@ def startup(*args):
             
             # Close document after successful initialization
             if myDocument:
-                myDocument.close(True)
+                #myDocument.close(True)
                 end_time = time.time()
                 duration = end_time - start_time
                 logger.info(f"Total initialization time: {duration:.2f} seconds")

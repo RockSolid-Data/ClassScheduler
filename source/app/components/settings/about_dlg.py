@@ -15,15 +15,21 @@ class AboutDialog(dialog.DialogBase):
         self.parent = parent
         self.logger = parent.logger if hasattr(parent, 'logger') else None
 
-        # Load icon paths directly from graphics directory (already copied to temp by boot_manager)
+        # Get icon from component manager's cache
         try:
-            rocksolid_icon_path = os.path.join(values.TOOLBAR_GRAPHICS_DIR, 'rocksolid-icon.png')
-            if os.path.exists(rocksolid_icon_path):
-                self.rocksolid_icon = uno.systemPathToFileUrl(rocksolid_icon_path)
+            if hasattr(parent, 'component_manager') and parent.component_manager:
+                self.rocksolid_icon = parent.component_manager.get_cached_icon_url('rocksolid-icon.png')
+                if self.rocksolid_icon:
+                    if self.logger:
+                        self.logger.info(f"Rocksolid icon loaded from cache: {self.rocksolid_icon}")
+                else:
+                    self.rocksolid_icon = ''
+                    if self.logger:
+                        self.logger.warning("Rocksolid icon not found in cache")
             else:
                 self.rocksolid_icon = ''
                 if self.logger:
-                    self.logger.warning(f"Rocksolid icon not found: {rocksolid_icon_path}")
+                    self.logger.warning("Component manager not available for icon loading")
         except Exception as e:
             self.rocksolid_icon = ''
             if self.logger:
@@ -42,7 +48,7 @@ class AboutDialog(dialog.DialogBase):
             x, y,
             width,
             height + 10,
-            Label='SheepPro',
+            Label='Class Scheduler',
             FontHeight=25,
             FontWeight=150,
             TextColor=self.TITLE_COLOR,
@@ -56,7 +62,7 @@ class AboutDialog(dialog.DialogBase):
             x, y,
             width,
             height,
-            Label='Version 1.2',
+            Label='Version 1.0',
             FontHeight=12,
             TextColor=0x666666,
             Align=1

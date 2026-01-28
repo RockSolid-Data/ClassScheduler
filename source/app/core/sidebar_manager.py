@@ -48,7 +48,7 @@ class SidebarManager(Sidebar):
             frame=frame_manager,
             sidebar_items=sidebar_items,
             width=64,
-            expanded_width=150,
+            expanded_width=160,
             default_state=default_state_pref,
             title=' CC',
             expanded_title='Control Center',

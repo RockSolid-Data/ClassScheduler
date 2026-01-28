@@ -79,18 +79,30 @@ class ComponentManager:
         """Initialize icon cache by copying commonly used icons to permanent storage"""
         try:
             # List of icons that need to be cached
+            # Format: (filename, subdirectory) - subdirectory can be None for root graphics dir
             icons_to_cache = [
-                'copy_arrow_right.png'
+                ('copy_arrow_right.png', None),
+                ('rocksolid-icon.png', 'sidebar')
             ]
             
             # Create permanent directory in temp folder
             temp_dir = os.path.join(tempfile.gettempdir(), '.librepy_component_icons')
             os.makedirs(temp_dir, exist_ok=True)
             
-            for icon_filename in icons_to_cache:
+            for icon_info in icons_to_cache:
                 try:
+                    # Unpack icon info
+                    if isinstance(icon_info, tuple):
+                        icon_filename, subdirectory = icon_info
+                    else:
+                        icon_filename = icon_info
+                        subdirectory = None
+                    
                     # Get source path (from document)
-                    source_path = os.path.join(GRAPHICS_DIR, icon_filename)
+                    if subdirectory:
+                        source_path = os.path.join(GRAPHICS_DIR, subdirectory, icon_filename)
+                    else:
+                        source_path = os.path.join(GRAPHICS_DIR, icon_filename)
                     
                     # Destination path
                     dest_path = os.path.join(temp_dir, icon_filename)

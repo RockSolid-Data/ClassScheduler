@@ -50,7 +50,7 @@ def print_session_attendees(session_id: int, session_date=None, session_time=Non
         "    email,\n"
         "    phone,\n"
         "    CASE WHEN paid = true THEN 'Yes' ELSE 'No' END AS paid\n"
-        "FROM class_scheduler_admin.sessionattendee\n"
+        "FROM class_scheduler.sessionattendee\n"
         f"WHERE session_id = {int(session_id)};"
     )
 

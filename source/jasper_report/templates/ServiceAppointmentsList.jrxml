@@ -23,7 +23,7 @@ SELECT
     appointment_date,
     appointment_time,
     notes
-FROM class_scheduler_admin.serviceappointment
+FROM class_scheduler.serviceappointment
 WHERE appointment_date BETWEEN $P{start_date} AND $P{end_date}
 ORDER BY appointment_date, appointment_time
         ]]>

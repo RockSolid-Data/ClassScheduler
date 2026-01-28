@@ -101,5 +101,5 @@ class MenubarManager(object):
     def show_about(self, *args):
         """Show about dialog"""
         from librepy.app.components.settings.about_dlg import AboutDialog
-        dlg = AboutDialog(self.ctx, self.parent, self.logger)
+        dlg = AboutDialog(self.ctx, self.smgr, self.parent)
         dlg.execute()
