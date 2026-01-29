@@ -34,8 +34,13 @@ class TrainingSessionList(ctr_container.Container):
             'top_offset': self.toolbar_offset,
         }
 
+        # Get background color from theme
+        bg_color = 0xF2F2F2  # Default
+        if hasattr(parent, 'theme_config'):
+            bg_color = parent.theme_config.get_main_bg_color_int()
+
         # Initialize base container
-        super().__init__(ctx, smgr, frame.window, ps, background_color=0xF2F2F2)
+        super().__init__(ctx, smgr, frame.window, ps, background_color=bg_color)
 
         # Store current size
         self.window_width = ps[2]
@@ -87,10 +92,10 @@ class TrainingSessionList(ctr_container.Container):
 
         # Search controls
         self.lbl_search = self.add_label(
-            'lbl_search', pos['search_label_x'], pos['search_y'], 60, 14, Label='Search:'
+            'lbl_search', pos['search_label_x'], pos['search_y'], 60, 20, Label='Search:'
         )
         self.txt_search = self.add_edit(
-            'txt_search', pos['search_x'], pos['search_y'], pos['search_w'], 14
+            'txt_search', pos['search_x'], pos['search_y'], pos['search_w'], 20
         )
         self.add_text_listener(self.txt_search, self._on_search_text_changed)
         self.add_key_listener(self.txt_search, pressed=self._on_search_key_pressed)
@@ -261,9 +266,9 @@ class TrainingSessionList(ctr_container.Container):
             if hasattr(self, 'lbl_title'):
                 self.lbl_title.setPosSize(pos['title_x'], pos['title_y'], pos['title_w'], pos['title_h'], POSSIZE)
             if hasattr(self, 'lbl_search'):
-                self.lbl_search.setPosSize(pos['search_label_x'], pos['search_y'], 60, 14, POSSIZE)
+                self.lbl_search.setPosSize(pos['search_label_x'], pos['search_y'], 60, 20, POSSIZE)
             if hasattr(self, 'txt_search'):
-                self.txt_search.setPosSize(pos['search_x'], pos['search_y'], pos['search_w'], 14, POSSIZE)
+                self.txt_search.setPosSize(pos['search_x'], pos['search_y'], pos['search_w'], 20, POSSIZE)
             if hasattr(self, 'btn_new_entry'):
                 self.btn_new_entry.setPosSize(pos['new_entry_x'], pos['top_button_y'], pos['top_button_width'], pos['top_button_height'], POSSIZE)
             if hasattr(self, 'btn_print_list') and self.btn_print_list is not None:
@@ -283,23 +288,23 @@ class TrainingSessionList(ctr_container.Container):
         pad_x = int(self.window_width * 0.02)
         pad_y = int(self.window_height * 0.02)
         
-        # Top-right action button (match calendar metrics)
-        top_button_width = 140
-        top_button_height = 30
-        top_button_y = 20  # Align with title Y
-        right_margin = 50
-        new_entry_x = self.window_width - (top_button_width + right_margin)
-        
         # Title - align Y with calendar component (calendar title Y = 20)
         title_h = 40
-        # Ensure title doesn't collide with right button area
-        max_title_w = max(120, new_entry_x - pad_x - 10)
-        title_w = min(360, max_title_w)
+        title_w = min(360, self.window_width - 2 * pad_x)
         title_x = pad_x
         title_y = 20
         
-        # Search controls - align Y with calendar month nav buttons (prev/next at Y = 95)
-        search_y = 95
+        # Action buttons and search controls - positioned above the grid at same Y level
+        top_button_width = 140
+        top_button_height = 30
+        button_spacing = 10
+        right_margin = 50
+        new_entry_x = self.window_width - (top_button_width + right_margin)
+        # Position buttons below title with some spacing
+        top_button_y = 95
+        
+        # Search controls - align with buttons
+        search_y = top_button_y + (top_button_height - 20) // 2  # Center vertically with buttons
         search_label_x = pad_x
         search_x = search_label_x + 60 + 6
         # Cap the search field width so it doesn't span the whole screen
@@ -309,7 +314,7 @@ class TrainingSessionList(ctr_container.Container):
         
         # Grid occupies the rest
         grid_x = pad_x
-        grid_y = search_y + 20 + 8
+        grid_y = top_button_y + top_button_height + 10  # Below buttons with 10px spacing
         grid_w = self.window_width - 2 * pad_x
         grid_h = self.window_height - grid_y - pad_y
         

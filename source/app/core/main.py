@@ -40,6 +40,11 @@ class App(object):
         self.component_manager = None
         self.ui_initialized = False
 
+        # Load theme configuration early
+        from librepy.app.utils.theme_config import get_theme_config
+        self.theme_config = get_theme_config(self.logger)
+        self.logger.info("Theme configuration loaded")
+
         self._load_saved_geometry()
 
         from librepy.app.core import frame_manager

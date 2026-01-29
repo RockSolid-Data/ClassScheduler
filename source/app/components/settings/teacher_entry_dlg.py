@@ -9,12 +9,12 @@ class TeacherEntryDialog(dialog.DialogBase):
     """
 
     # x, y, width, height
-    POS_SIZE = 0, 0, 400, 250
+    POS_SIZE = 0, 0, 280, 165      
 
     # Layout constants
     MARGIN = 32
     ROW_SPACING = 10
-    LABEL_HEIGHT = 14
+    LABEL_HEIGHT = 14   
     FIELD_HEIGHT = 22
     BUTTON_HEIGHT = 24
 
@@ -73,9 +73,14 @@ class TeacherEntryDialog(dialog.DialogBase):
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
 
-        # Cancel (left) and Save (right)
-        self.add_cancel('BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        # Cancel button - neutral gray
+        self.add_cancel('BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT,
+                       BackgroundColor=0x808080, TextColor=0xFFFFFF)
+        
+        # Save button - green
+        self.btn_save = self.add_button('BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                        Label='Save', DefaultButton=False,
+                                        BackgroundColor=0x28A745, TextColor=0xFFFFFF)
         self.add_action_listener(self.btn_save, self._on_save)
 
     def _create_buttons_edit(self):
@@ -87,11 +92,20 @@ class TeacherEntryDialog(dialog.DialogBase):
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
 
-        # Delete, Cancel, Save
-        self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, Label='Delete')
+        # Delete button - red
+        self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                          Label='Delete',
+                                          BackgroundColor=0xDC3545, TextColor=0xFFFFFF)
         self.add_action_listener(self.btn_delete, self._on_delete)
-        self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        
+        # Cancel button - neutral gray
+        self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT,
+                       BackgroundColor=0x808080, TextColor=0xFFFFFF)
+        
+        # Save button - green
+        self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                        Label='Save', DefaultButton=False,
+                                        BackgroundColor=0x28A745, TextColor=0xFFFFFF)
         self.add_action_listener(self.btn_save, self._on_save)
 
     def commit(self) -> dict:

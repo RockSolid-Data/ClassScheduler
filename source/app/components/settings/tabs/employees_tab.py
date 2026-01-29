@@ -12,7 +12,7 @@ class EmployeesTab(BaseTab):
         self.listeners = Listeners()
 
     def build(self):
-        btn_w, btn_h = 70, 10
+        btn_w, btn_h = 70, 12
         btn_x = 10 + 460 - btn_w
         btn_y = 5
         self.btn_new_entry = self.dialog.add_button(
@@ -22,6 +22,8 @@ class EmployeesTab(BaseTab):
             Label='New Entry',
             FontWeight=100,
             FontHeight=12,
+            BackgroundColor=0x001F3F,
+            TextColor=0xFFFFFF,
         )
 
         titles = [

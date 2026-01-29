@@ -293,7 +293,10 @@ class Calendar(ctr_container.Container):
         
         # Use available area passed from parent
         container_ps = ps
-        self.background_color = 0xF4F5F7
+        # Get background color from kwargs or use default
+        self.background_color = kwargs.get('background_color', 0xF4F5F7)
+        # Get calendar grid background color from kwargs or use default
+        self.calendar_grid_bg_color = kwargs.get('calendar_grid_bg_color', 0xFFFFFF)
         super().__init__(
             ctx, 
             smgr, 

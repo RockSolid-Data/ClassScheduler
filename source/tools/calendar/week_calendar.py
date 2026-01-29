@@ -55,6 +55,9 @@ class WeekCalendar(Container):
         # Get container bounds from parent (we only need width and height)
         x, y, width, height = parent._get_view_container_bounds()
         
+        # Get calendar grid background color from parent or use default
+        calendar_grid_bg = getattr(parent, 'calendar_grid_bg_color', 0xFFFFFF)
+        
         # Initialize Container at (0, 0) relative to the child window
         # The child window itself is already positioned correctly
         super().__init__(
@@ -62,7 +65,7 @@ class WeekCalendar(Container):
             smgr=smgr,
             window=window,
             ps=(0, 0, width, height),
-            background_color=0xFFFFFF
+            background_color=calendar_grid_bg
         )
         
         # Calendar data storage

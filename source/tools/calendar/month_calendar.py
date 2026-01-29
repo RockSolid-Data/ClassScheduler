@@ -64,6 +64,9 @@ class MonthCalendar(Container):
             self.logger.info(f"View area size: {width}x{height}")
             self.logger.info(f"Parent window visible: {window.isVisible()}")
         
+        # Get calendar grid background color from parent or use default
+        calendar_grid_bg = getattr(parent, 'calendar_grid_bg_color', 0xFFFFFF)
+        
         # Initialize Container at (0, 0) relative to the child window
         # The child window itself is already positioned correctly
         super().__init__(
@@ -71,7 +74,7 @@ class MonthCalendar(Container):
             smgr=smgr,
             window=window,
             ps=(0, 0, width, height),
-            background_color=0xFFFFFF
+            background_color=calendar_grid_bg
         )
         
         if self.logger:
@@ -96,7 +99,7 @@ class MonthCalendar(Container):
                 'border': 0x000000,
                 'day_label_bg': 0xF8F8F8,
                 'day_label_border': 0xDDDDDD,
-                'calendar_bg': 0xFFFFFF,
+                'calendar_bg': calendar_grid_bg,  # Use the theme color
                 'calendar_border': 0xDDDDDD,
                 'current_month': 0x000000,
                 'other_month': 0x999999,

@@ -35,6 +35,7 @@ class MenubarManager(object):
                 m(0, '~Settings', None, (
                     # Set app specific settings here
                     sm(None, 'Divider'),
+                    sm(2, '~Appearance', 'p_appearance', graphic='background.png'),
                     sm(3, '~Log Settings', 'p_log_settings', graphic='log-settings.png'),
                     sm(4, '~Database Settings', 'p_settings', graphic='database-settings2.png'),
                     sm(5, '~Staff', 'p_staff', graphic='business-info.png'),
@@ -49,6 +50,7 @@ class MenubarManager(object):
             #Menu bar functions
             fn = {}
             # Set app specific functions here
+            fn['p_appearance'] = self.appearance_settings
             fn['p_log_settings'] = self.log_settings
             fn['p_settings'] = self.settings
             fn['p_staff'] = self.staff
@@ -74,6 +76,12 @@ class MenubarManager(object):
             self.logger.error(traceback.format_exc())
 
     # Menubar actions...
+    
+    def appearance_settings(self, *args):
+        """Show appearance settings dialog"""
+        from librepy.app.components.settings.app_settings_dlg import AppSettingsDialog
+        dlg = AppSettingsDialog(self.ctx, self.parent, self.logger)
+        dlg.execute()
         
     def log_settings(self, *args):
         """Show log settings dialog"""

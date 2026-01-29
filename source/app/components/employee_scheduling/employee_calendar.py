@@ -1,92 +1,99 @@
-from librepy.app.components.calendar.calendar_view import Calendar
+from librepy.tools.calendar.calendar import Calendar
 from librepy.app.data.dao.employee_contract_dao import EmployeeContractDAO
 from librepy.app.components.employee_scheduling.employee_contract_dlg import EmployeeContractDialog
 from librepy.app.utils.utils import is_allowed
-import calendar as py_calendar
+from datetime import datetime, timedelta
 import traceback
-from datetime import timedelta
 import colorsys
 
 
-class EmployeeCalendar(Calendar):
+class EmployeeCalendar:
     """
     Employee Calendar component.
 
-    Displays employee contract spans as daily entries within the month grid.
-    Each contract generates one entry per day between its start and end date (inclusive).
+    Uses the new Calendar base class with callback-based architecture
+    to display employee contract spans as daily entries.
     """
 
     # Unique component name used for routing/navigation
     component_name = 'employee_calendar'
 
     def __init__(self, parent, ctx, smgr, frame, ps):
-        super().__init__(parent, ctx, smgr, frame, ps, title="Employee Contracts")
+        self.parent = parent
+        self.ctx = ctx
+        self.smgr = smgr
+        self.frame = frame
+        self.ps = ps
+        self.logger = parent.logger
+        
+        # Toolbar offset (if any)
+        self.toolbar_offset = getattr(parent, 'toolbar_offset', 0)
+        
+        # Define action buttons for the calendar header
+        action_buttons = [
+            {
+                'label': 'New Contract',
+                'callback': self._on_new_contract_clicked,
+                'color': 0x2C3E50,
+                'text_color': 0xFFFFFF
+            },
+            {
+                'label': 'Print',
+                'callback': self._on_print_clicked,
+                'color': 0x2C3E50,
+                'text_color': 0xFFFFFF
+            }
+        ]
+        
+        # Get background colors from theme
+        bg_color = 0xF4F5F7  # Default container background
+        calendar_grid_bg_color = 0xFFFFFF  # Default calendar grid background
+        if hasattr(parent, 'theme_config'):
+            bg_color = parent.theme_config.get_main_bg_color_int()
+            calendar_grid_bg_color = parent.theme_config.get_calendar_grid_bg_color_int()
+        
+        # Create the calendar using the new Calendar base class
+        self.calendar = Calendar(
+            parent=parent,
+            ctx=ctx,
+            smgr=smgr,
+            frame=frame,
+            ps=ps,
+            get_items_callback=self._get_items,
+            get_filter_options_callback=self._get_filter_options,
+            get_item_color_callback=self._get_item_color,
+            on_item_click_callback=self._on_item_click,
+            filter_label="Filter",
+            action_buttons=action_buttons,
+            calendar_title="Employee Contracts",
+            default_view="Month",
+            toolbar_offset=self.toolbar_offset,
+            background_color=bg_color,
+            calendar_grid_bg_color=calendar_grid_bg_color
+        )
+        
+        self.logger.info("EmployeeCalendar initialized")
 
-    # ------------------------------
-    # Hook implementations
-    # ------------------------------
-    def on_print(self, event):
-        """Generate a PDF calendar for the visible date range using JasperReports."""
-        try:
-            start_date, end_date = self.get_display_date_range()
-            if not start_date or not end_date:
-                self.logger.warning("EmployeeCalendar: no date range to print")
-                return
-            from librepy.jasper_report.print_calendar import save_calendar_range_as_pdf
-            from librepy.app.components.calendar.queries import EMPLOYEE_CONTRACTS_QUERY
-
-            query_text = EMPLOYEE_CONTRACTS_QUERY
-            self.logger.info(f"Printing Employee Contracts calendar: {start_date} - {end_date}")
-            save_calendar_range_as_pdf(start_date, end_date, query_text)
-            self.logger.info("Employee Contracts calendar PDF export invoked")
-        except Exception as e:
-            self.logger.error(f"Failed to print Employee Contracts calendar: {e}")
-            self.logger.error(traceback.format_exc())
-
-    def on_new_entry(self, event):
-        """Open the Employee Contract dialog and refresh calendar on successful save."""
-        try:
-            dlg = EmployeeContractDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="New Employee Contract")
-            ret = dlg.execute()
-            if ret == 1:
-                self._update_calendar()
-        except Exception as e:
-            self.logger.error(f"Failed to open Employee Contract dialog: {e}")
-            self.logger.error(traceback.format_exc())
-
-    def on_entry_click(self, ev, entry_id=None):
-        """Open Employee Contract dialog in edit mode when clicking an entry; refresh on save/delete."""
-        try:
-            super().on_entry_click(ev, entry_id)
-            if entry_id is None:
-                return
-            dlg = EmployeeContractDialog(self, self.ctx, self.smgr, self.frame, self.ps, Title="Edit Employee Contract", contract_id=entry_id)
-            ret = dlg.execute()
-            if ret == 1 or ret == 2:
-                self._update_calendar()
-        except Exception as e:
-            self.logger.error(f"Failed to open Employee Contract for edit (id={entry_id}): {e}")
-            self.logger.error(traceback.format_exc())
-
-    def load_calendar_data(self):
-        """Load employee contracts overlapping the visible month and expand to daily entries.
-
-        Populates: self.calendar_data = { 'YYYY-MM-DD': [ {id, date, title, status, color}, ... ] }
+    # =========================================================================
+    # CALLBACK METHODS - Required by the new Calendar base class
+    # =========================================================================
+    
+    def _get_items(self, start_date, end_date, filter_value):
+        """Load and return calendar items for the date range.
+        
+        Args:
+            start_date (datetime): Start of date range
+            end_date (datetime): End of date range
+            filter_value (str): Current filter selection
+        
+        Returns:
+            dict: Items grouped by date string 'YYYY-MM-DD'
         """
         try:
-            cal = py_calendar.Calendar(6)  # Sunday-first
-            dates_iter = list(cal.itermonthdates(self.current_date.year, self.current_date.month))
-            if not dates_iter:
-                self.calendar_data = {}
-                return
-
-            visible_start = dates_iter[0]
-            visible_end = dates_iter[-1]
-
             dao = EmployeeContractDAO(self.logger)
-            contracts = dao.get_contracts_between(visible_start, visible_end)
+            contracts = dao.get_contracts_between(start_date, end_date)
 
-            # Build distinct contract id list
+            # Build distinct contract id list for color mapping
             distinct_ids = []
             for c in contracts or []:
                 cid = c.get('id')
@@ -94,18 +101,17 @@ class EmployeeCalendar(Calendar):
                     distinct_ids.append(cid)
 
             # Generate a simple HSL palette sized to distinct contracts
-            # Constrain saturation and lightness to produce light pastel colors that work with dark text
             def hsl_color(i, n, s=0.45, l=0.82):
                 if n <= 0:
                     return 0xD6EAF8
                 h = (i % n) / float(n)
-                r, g, b = colorsys.hls_to_rgb(h, l, s)  # note: colorsys uses HLS
+                r, g, b = colorsys.hls_to_rgb(h, l, s)
                 R = int(round(r * 255))
                 G = int(round(g * 255))
                 B = int(round(b * 255))
-                # Ensure sufficient brightness for dark (current) font
+                # Ensure sufficient brightness for dark text
                 luma = 0.2126 * R + 0.7152 * G + 0.0722 * B
-                if luma < 150:  # too dark for 0x222222 text; lighten it
+                if luma < 150:
                     r2, g2, b2 = colorsys.hls_to_rgb(h, 0.88, s)
                     R = int(round(r2 * 255))
                     G = int(round(g2 * 255))
@@ -121,9 +127,10 @@ class EmployeeCalendar(Calendar):
                 c_end = c.get('end_date')
                 if not c_start or not c_end:
                     continue
+                    
                 # Clip contract span to the visible range
-                start_day = max(visible_start, c_start)
-                end_day = min(visible_end, c_end)
+                start_day = max(start_date.date() if hasattr(start_date, 'date') else start_date, c_start)
+                end_day = min(end_date.date() if hasattr(end_date, 'date') else end_date, c_end)
                 if end_day < start_day:
                     continue
 
@@ -145,73 +152,162 @@ class EmployeeCalendar(Calendar):
 
                 contract_id = c.get('id')
                 bg_color = color_map.get(contract_id, 0xD6EAF8)
+                working_days = c.get('working_days')
 
                 # Emit one entry per day
                 current = start_day
                 while current <= end_day:
+                    # Check if this day is allowed by working_days mask
+                    weekday_idx = current.weekday()  # Mon=0..Sun=6
+                    if working_days is not None and not is_allowed(weekday_idx, int(working_days)):
+                        current += timedelta(days=1)
+                        continue
+                    
                     date_key = f"{current.year:04d}-{current.month:02d}-{current.day:02d}"
+                    
+                    # Create start_time for this day
+                    if time_in and hasattr(time_in, 'hour'):
+                        start_time = datetime.combine(current, time_in.time() if hasattr(time_in, 'time') else time_in)
+                    else:
+                        start_time = datetime.combine(current, datetime.min.time())
+                    
                     grouped.setdefault(date_key, []).append({
                         'id': contract_id,
-                        'date': date_key,
                         'title': title,
+                        'start_time': start_time,
                         'status': c.get('status', 'active'),
                         'color': bg_color,
-                        'working_days': c.get('working_days'),
+                        'working_days': working_days,
                     })
                     current += timedelta(days=1)
 
-            self.calendar_data = grouped
+            return grouped
         except Exception as e:
             self.logger.error(f"Error loading employee contracts: {e}")
             self.logger.error(traceback.format_exc())
-            self.calendar_data = {}
-
-    def _render_entries_for_day(self, date, x, base_y, cell_width, row_index):
-        """Render entries for a given day respecting each contract's working_days mask.
-
-        We use utils.mask_to_array to convert the bitmask (Mon..Sun) and compare it with
-        Python's date.weekday() (Mon=0..Sun=6). If a contract has no working_days mask,
-        we render it by default.
-        """
-        cfg = self.calendar_config
-        day_label_height = cfg['day_label_height']
-        entry_height = cfg.get('entry_height', 24)
-        entry_spacing = cfg.get('entry_spacing', 4)
-        entry_margin_x = cfg.get('entry_margin_x', 4)
-
-        date_key = f"{date.year:04d}-{date.month:02d}-{date.day:02d}"
-        entries_for_day = self.calendar_data.get(date_key, [])
-
-        weekday_idx = date.weekday()  # Mon=0..Sun=6
-        render_idx = 0
-        for entry in entries_for_day:
-            wd_mask = int(entry.get('working_days'))
-            if not is_allowed(weekday_idx, wd_mask):
-                continue
-
-            entry_name = f"pillbtn_{date.day}{date.month}{date.year}_{entry.get('id')}"
-            btn_x = x + entry_margin_x
-            btn_y = base_y + day_label_height + entry_spacing + render_idx * (entry_height + entry_spacing)
-            btn_w = cell_width - 2 * entry_margin_x
-            btn_h = entry_height
-
-            title = entry.get('title') or ''
-            max_len = 24
-            label = (title[:max_len - 2] + '..') if len(title) > max_len else title
-
-            bg = entry.get('color', 0xD6EAF8)
-            entry_id = entry.get('id')
-
-            self._render_single_entry(
-                entry_name,
-                label,
-                btn_x,
-                btn_y,
-                btn_w,
-                btn_h,
-                row_index,
-                background_color=bg,
-                entry_id=entry_id
+            return {}
+    
+    def _get_filter_options(self):
+        """Return list of filter options for the filter dropdown."""
+        return ["All"]
+    
+    def _get_item_color(self, item):
+        """Determine color based on item properties."""
+        return item.get('color', 0xD6EAF8)
+    
+    def _on_item_click(self, item_id, item):
+        """Handle item click - open edit dialog for the contract."""
+        try:
+            if item_id is None:
+                return
+            
+            dlg = EmployeeContractDialog(
+                self, self.ctx, self.smgr, self.frame, self.ps, 
+                Title="Edit Employee Contract", 
+                contract_id=item_id
             )
-            render_idx += 1
+            ret = dlg.execute()
+            if ret == 1 or ret == 2:
+                self.refresh_data()
+        except Exception as e:
+            self.logger.error(f"Failed to open Employee Contract for edit (id={item_id}): {e}")
+            self.logger.error(traceback.format_exc())
+    
+    # =========================================================================
+    # ACTION BUTTON CALLBACKS
+    # =========================================================================
+    
+    def _on_print_clicked(self, event):
+        """Handle print button click - delegates to the current view's print method."""
+        try:
+            if self.calendar and self.calendar.current_view:
+                if hasattr(self.calendar.current_view, 'print_calendar'):
+                    self.calendar.current_view.print_calendar(event)
+                else:
+                    if self.logger:
+                        self.logger.warning("Current view does not support printing")
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error in print callback: {e}")
+                self.logger.error(traceback.format_exc())
+
+    def _on_new_contract_clicked(self, event):
+        """Open the Employee Contract dialog and refresh calendar on successful save."""
+        try:
+            dlg = EmployeeContractDialog(
+                self, self.ctx, self.smgr, self.frame, self.ps, 
+                Title="New Employee Contract"
+            )
+            ret = dlg.execute()
+            if ret == 1:
+                self.refresh_data()
+        except Exception as e:
+            self.logger.error(f"Failed to open Employee Contract dialog: {e}")
+            self.logger.error(traceback.format_exc())
+    
+    # =========================================================================
+    # HELPER METHODS
+    # =========================================================================
+    
+    def _get_display_date_range(self):
+        """Return the inclusive date range currently displayed in the calendar."""
+        try:
+            if not self.calendar:
+                return None, None
+            
+            import calendar as cal_module
+            current_date = self.calendar.current_date
+            cal = cal_module.Calendar(6)  # Start week on Sunday
+            month_days = list(cal.itermonthdates(current_date.year, current_date.month))
+            
+            if not month_days:
+                return None, None
+            
+            return month_days[0], month_days[-1]
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error computing display date range: {e}")
+                self.logger.error(traceback.format_exc())
+            return None, None
+    
+    def refresh_data(self):
+        """Refresh the calendar data and redraw."""
+        if self.calendar and self.calendar.current_view:
+            if hasattr(self.calendar.current_view, 'reload_data'):
+                self.calendar.current_view.reload_data()
+    
+    # =========================================================================
+    # COMPONENT LIFECYCLE METHODS
+    # =========================================================================
+    
+    def show(self):
+        """Show the calendar component."""
+        if self.calendar:
+            self.calendar.show()
+    
+    def hide(self):
+        """Hide the calendar component."""
+        if self.calendar:
+            self.calendar.hide()
+    
+    def resize(self, width, height):
+        """Handle window resize events."""
+        if self.calendar:
+            self.calendar.resize(width, height)
+    
+    def dispose(self):
+        """Dispose of the calendar and clean up resources."""
+        try:
+            if self.logger:
+                self.logger.info("Disposing EmployeeCalendar")
+            
+            if self.calendar:
+                self.calendar.dispose()
+                self.calendar = None
+            
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error during EmployeeCalendar disposal: {e}")
+                self.logger.error(traceback.format_exc())
 

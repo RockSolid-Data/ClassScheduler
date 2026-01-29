@@ -49,6 +49,17 @@ class FrameManager(object):
             **kwargs
         )
         
+        # Set window background color from theme config
+        try:
+            if hasattr(parent, 'theme_config'):
+                bg_color = parent.theme_config.get_main_bg_color_int()
+                self.base_frame.window.setProperty('BackgroundColor', bg_color)
+                self.logger.info(f"Window background color set to: {hex(bg_color)}")
+            else:
+                self.logger.warning("Parent has no theme_config, using default window color")
+        except Exception as e:
+            self.logger.error(f"Failed to set window background color: {e}")
+        
         self.base_frame.show()
 
     @property

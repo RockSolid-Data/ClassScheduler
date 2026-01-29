@@ -38,27 +38,27 @@ class DetailsTab(BaseTab):
         label_kwargs = dict(FontWeight=120, FontHeight=11, VerticalAlign=2)
 
         # Name
-        self.dialog.add_label('LblName', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Name', page=self.page, **label_kwargs)
+        self.dialog.add_label('LblName', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Name', BackgroundColor=0xFFFFFF, page=self.page, **label_kwargs)
         self.edt_name = self.dialog.add_edit('EdtName', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, page=self.page)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
         # Teacher
-        self.dialog.add_label('LblTeacher', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Teacher', page=self.page, **label_kwargs)
+        self.dialog.add_label('LblTeacher', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Teacher', BackgroundColor=0xFFFFFF, page=self.page, **label_kwargs)
         self.lst_teacher = self.dialog.add_list('LstTeacher', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, MultiSelection=False, Dropdown=True, page=self.page)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
         # Session Date
-        self.dialog.add_label('LblDate', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Session Date', page=self.page, **label_kwargs)
+        self.dialog.add_label('LblDate', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Session Date', BackgroundColor=0xFFFFFF, page=self.page, **label_kwargs)
         self.edt_date = self.dialog.add_date('EdtDate', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, Dropdown=True, page=self.page)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
         # Session Time
-        self.dialog.add_label('LblTime', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Session Time', page=self.page, **label_kwargs)
+        self.dialog.add_label('LblTime', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Session Time', BackgroundColor=0xFFFFFF, page=self.page, **label_kwargs)
         self.edt_time = self.dialog.add_time('EdtTime', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, Spin=True, StrictFormat=False, TimeFormat=2, page=self.page)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
         # Price
-        self.dialog.add_label('LblPrice', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Price', page=self.page, **label_kwargs)
+        self.dialog.add_label('LblPrice', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Price',BackgroundColor=0xFFFFFF, page=self.page, **label_kwargs)
         self.edt_price = self.dialog.add_numeric('EdtPrice', x + self.lbl_width, y - 2, self.field_width, self.FIELD_HEIGHT, page=self.page)
 
     # ---------- helpers (copied from original dialog) ----------

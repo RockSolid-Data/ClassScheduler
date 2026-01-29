@@ -27,7 +27,7 @@ class PeopleTab(BaseTab):
         pad = 5
 
         # Top-right New Entry and Print buttons
-        btn_w, btn_h = 70, 10
+        btn_w, btn_h = 70, 12
         btn_y = 5
         btn_x = page_width - pad - btn_w
         self.btn_new_entry = self.dialog.add_button(
@@ -37,6 +37,8 @@ class PeopleTab(BaseTab):
             Label='New Entry',
             FontWeight=100,
             FontHeight=12,
+            BackgroundColor=0x001F3F,
+            TextColor=0xFFFFFF,
         )
 
         # Print button to the left of New Entry
@@ -48,6 +50,8 @@ class PeopleTab(BaseTab):
             Label='Print',
             FontWeight=100,
             FontHeight=12,
+            BackgroundColor=0x001F3F,
+            TextColor=0xFFFFFF,
         )
 
         # Grid title spec

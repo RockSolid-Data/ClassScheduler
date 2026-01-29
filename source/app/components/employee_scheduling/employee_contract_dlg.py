@@ -11,14 +11,19 @@ class EmployeeContractDialog(dialog.DialogBase):
     Buttons: Cancel/Save (new), Delete/Cancel/Save (edit)
     """
 
-    POS_SIZE = 0, 0, 520, 300
+    POS_SIZE = 0, 0, 350, 250
 
-    MARGIN = 32
-    ROW_SPACING = 10
+    MARGIN = 24
+    ROW_SPACING = 8
     LABEL_HEIGHT = 14
     FIELD_HEIGHT = 22
-    BUTTON_HEIGHT = 24
+    BUTTON_HEIGHT = 26
     DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    
+    # Button Colors
+    SAVE_BUTTON_COLOR = 0x2E7D32  # Green
+    DELETE_BUTTON_COLOR = 0xC62828  # Red
+    CANCEL_BUTTON_COLOR = 0x757575  # Gray
 
     def __init__(self, parent, ctx, smgr, frame, ps, **props):
         props['Title'] = props.get('Title', 'Employee Contract')
@@ -40,10 +45,10 @@ class EmployeeContractDialog(dialog.DialogBase):
 
     def _create(self):
         x = self.MARGIN
-        y = self.MARGIN // 3
+        y = self.MARGIN // 2
 
         total_inner_width = self.POS_SIZE[2] - (self.MARGIN * 2)
-        self.lbl_width = int(total_inner_width * 0.35)
+        self.lbl_width = int(total_inner_width * 0.15)
         self.field_width = total_inner_width - self.lbl_width
 
         label_kwargs = dict(FontWeight=120, FontHeight=11, VerticalAlign=2)
@@ -76,12 +81,12 @@ class EmployeeContractDialog(dialog.DialogBase):
         self.add_label('LblWorkingDays', x, y, self.lbl_width, self.LABEL_HEIGHT, Label='Working Days', **label_kwargs)
 
         field_x = x + self.lbl_width
-        chk_width = 40
+        chk_width = 38
         gap = 2
         self.chk_working_days = []
         for i, d in enumerate(self.DAYS):
             cx = field_x + i * (chk_width + gap)
-            chk = self.add_check(f'Chk{d}', cx, y - 1, chk_width, self.FIELD_HEIGHT, Label=d)
+            chk = self.add_check(f'Chk{d}', cx, y + 5, chk_width, self.FIELD_HEIGHT, Label=d)
             self.chk_working_days.append(chk)
         y += self.FIELD_HEIGHT + self.ROW_SPACING
 
@@ -91,29 +96,65 @@ class EmployeeContractDialog(dialog.DialogBase):
             self._create_buttons_edit()
 
     def _create_buttons_new(self):
-        btn_width = 80
-        gap = 10
+        btn_width = 90
+        gap = 12
         count = 2
         total_w = count * btn_width + (count - 1) * gap
         dlg_w = self.POS_SIZE[2]
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
-        self.add_cancel('BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        
+        self.btn_cancel = self.add_button(
+            'BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT,
+            Label='Cancel',
+            BackgroundColor=self.CANCEL_BUTTON_COLOR,
+            TextColor=0xFFFFFF
+        )
+        self.add_action_listener(self.btn_cancel, lambda e: self.end_execute(0))
+        
+        self.btn_save = self.add_button(
+            'BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT,
+            Label='Save',
+            DefaultButton=False,
+            BackgroundColor=self.SAVE_BUTTON_COLOR,
+            TextColor=0xFFFFFF,
+            FontWeight=150
+        )
         self.add_action_listener(self.btn_save, self._on_save)
 
     def _create_buttons_edit(self):
-        btn_width = 80
-        gap = 10
+        btn_width = 85
+        gap = 8
         count = 3
         total_w = count * btn_width + (count - 1) * gap
         dlg_w = self.POS_SIZE[2]
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
-        self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, Label='Delete')
+        
+        self.btn_delete = self.add_button(
+            'BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT,
+            Label='Delete',
+            BackgroundColor=self.DELETE_BUTTON_COLOR,
+            TextColor=0xFFFFFF
+        )
         self.add_action_listener(self.btn_delete, self._on_delete)
-        self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        
+        self.btn_cancel = self.add_button(
+            'BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT,
+            Label='Cancel',
+            BackgroundColor=self.CANCEL_BUTTON_COLOR,
+            TextColor=0xFFFFFF
+        )
+        self.add_action_listener(self.btn_cancel, lambda e: self.end_execute(0))
+        
+        self.btn_save = self.add_button(
+            'BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT,
+            Label='Save',
+            DefaultButton=False,
+            BackgroundColor=self.SAVE_BUTTON_COLOR,
+            TextColor=0xFFFFFF,
+            FontWeight=150
+        )
         self.add_action_listener(self.btn_save, self._on_save)
 
     def commit(self):

@@ -13,7 +13,11 @@ class PrintListDateRangeDialog(dialog.DialogBase):
     - On Cancel, close with ret=0
     """
 
-    POS_SIZE = 0, 0, 360, 160  # x, y, w, h
+    POS_SIZE = 0, 0, 300, 160  # x, y, w, h
+    
+    # Button colors
+    CANCEL_BUTTON_COLOR = 0x757575  # Gray
+    CONTINUE_BUTTON_COLOR = 0x2E7D32  # Green
 
     def __init__(self, parent, ctx, smgr, frame, ps, **props):
         props['Title'] = props.get('Title', 'Print List')
@@ -44,13 +48,15 @@ class PrintListDateRangeDialog(dialog.DialogBase):
         x = margin
         y = margin
 
+        label_kwargs = dict(FontWeight=120, FontHeight=11, VerticalAlign=2)
+
         # Start date
-        self.add_label('LblStart', x, y, lbl_w, label_h, Label='Start date', FontWeight=120, FontHeight=10)
+        self.add_label('LblStart', x, y, lbl_w, label_h, Label='Start date', **label_kwargs)
         self._date_start = self.add_date('DateStart', x + lbl_w, y - 2, fld_w, field_h, Dropdown=True)
         y += field_h + row_gap
 
         # End date
-        self.add_label('LblEnd', x, y, lbl_w, label_h, Label='End date', FontWeight=120, FontHeight=10)
+        self.add_label('LblEnd', x, y, lbl_w, label_h, Label='End date', **label_kwargs)
         self._date_end = self.add_date('DateEnd', x + lbl_w, y - 2, fld_w, field_h, Dropdown=True)
 
         # Buttons (centered): Cancel and Continue
@@ -62,8 +68,21 @@ class PrintListDateRangeDialog(dialog.DialogBase):
         start_x = (self.POS_SIZE[2] - total_w) // 2
         btn_y = self.POS_SIZE[3] - margin - btn_h
 
-        self.add_button('BtnCancel', start_x, btn_y, btn_w, btn_h, Label='Cancel', callback=self._on_cancel)
-        self.add_button('BtnContinue', start_x + btn_w + gap, btn_y, btn_w, btn_h, Label='Continue', callback=self._on_submit)
+        self.add_button(
+            'BtnCancel', start_x, btn_y, btn_w, btn_h,
+            Label='Cancel',
+            BackgroundColor=self.CANCEL_BUTTON_COLOR,
+            TextColor=0xFFFFFF,
+            callback=self._on_cancel
+        )
+        self.add_button(
+            'BtnContinue', start_x + btn_w + gap, btn_y, btn_w, btn_h,
+            Label='Continue',
+            BackgroundColor=self.CONTINUE_BUTTON_COLOR,
+            TextColor=0xFFFFFF,
+            FontWeight=150,
+            callback=self._on_submit
+        )
 
     # Reference methods from provided snippet (adapted; no checkbox logic)
     def _prepare(self):

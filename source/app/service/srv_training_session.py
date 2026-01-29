@@ -1,6 +1,7 @@
 from librepy.app.forms.training_session_form import TrainingSessionForm
 from librepy.app.data.dao.teacher_dao import TeacherDAO
 from librepy.app.data.dao.training_session_dao import TrainingSessionDAO
+from librepy.app.data.dao.session_attendee_dao import SessionAttendeeDAO
 
 
 def save_training_session(data: dict, context=None) -> dict:
@@ -24,10 +25,22 @@ def save_training_session(data: dict, context=None) -> dict:
 
 def delete_training_session(session_id: int, context=None) -> dict:
     """Delete a Training Session by id.
+    
+    First deletes all associated attendees to avoid foreign key constraint violations.
 
     Returns: {"ok": True, "deleted": n} when n > 0, else {"ok": False}
     """
-    dao = TrainingSessionDAO(getattr(context, "logger", context))
+    logger = getattr(context, "logger", context)
+    
+    # First, delete all attendees associated with this session
+    attendee_dao = SessionAttendeeDAO(logger)
+    attendee_dao.delete_where(
+        attendee_dao.model_class.session == session_id,
+        operation_name='delete SessionAttendees for training session'
+    )
+    
+    # Now delete the training session itself
+    dao = TrainingSessionDAO(logger)
     n = dao.delete_where(dao.model_class.session_id == session_id, operation_name='delete TrainingSession by id')
     return {"ok": bool(n and n > 0), "deleted": n or 0}
 

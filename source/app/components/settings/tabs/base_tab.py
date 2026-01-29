@@ -13,3 +13,9 @@ class BaseTab:
 
     def build(self):
         raise NotImplementedError("Subclasses must implement build()")
+
+    def prepare(self):
+        pass
+
+    def dispose(self):
+        pass

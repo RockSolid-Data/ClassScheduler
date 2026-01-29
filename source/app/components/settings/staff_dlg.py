@@ -48,7 +48,10 @@ class StaffDialog(dialog.DialogBase):
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
         ok_x = self.POS_SIZE[2] - self.MARGIN - btn_width
 
-        self.add_button('BtnOK', ok_x, btn_y, btn_width, self.BUTTON_HEIGHT, Label='OK', PushButtonType=1, DefaultButton=True)
+        # OK button - green
+        self.add_button('BtnOK', ok_x, btn_y, btn_width, self.BUTTON_HEIGHT, 
+                       Label='OK', PushButtonType=1, DefaultButton=True,
+                       BackgroundColor=0x28A745, TextColor=0xFFFFFF)
 
     def _prepare(self):
         pass

@@ -40,6 +40,12 @@ class SidebarManager(Sidebar):
             # Add the rest of the sidebar items here
         ]
         
+        # Get theme colors from parent app
+        sidebar_colors = None
+        if hasattr(parent, 'theme_config'):
+            sidebar_colors = parent.theme_config.get_sidebar_colors_dict()
+            self.logger.info(f"Using theme colors for sidebar: {sidebar_colors}")
+        
         # Initialize the parent Sidebar class
         super().__init__(
             parent=parent,
@@ -52,7 +58,8 @@ class SidebarManager(Sidebar):
             default_state=default_state_pref,
             title=' CC',
             expanded_title='Control Center',
-            position='left'
+            position='left',
+            colors=sidebar_colors  # Pass theme colors
         )
         
         self.logger.info("SidebarManager initialized")

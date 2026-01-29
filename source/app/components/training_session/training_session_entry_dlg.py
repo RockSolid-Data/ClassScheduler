@@ -16,9 +16,9 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
     Behaviour (save, delete, cancel) remains unchanged.
     """
 
-    POS_SIZE = 0, 0, 440, 330
+    POS_SIZE = 0, 0, 400, 300
 
-    MARGIN = 32
+    MARGIN = 28
     ROW_SPACING = 10
     LABEL_HEIGHT = 14
     FIELD_HEIGHT = 22
@@ -89,8 +89,11 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
 
-        self.add_cancel('BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        self.add_cancel('BtnCancel', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, 
+                       BackgroundColor=0x808080, TextColor=0xFFFFFF, FontWeight=150)
+        self.btn_save = self.add_button('BtnSave', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                       Label='Save', DefaultButton=False,
+                                       BackgroundColor=0x2E7D32, TextColor=0xFFFFFF, FontWeight=150)
         self.add_action_listener(self.btn_save, self._on_save)
 
     def _create_buttons_edit(self):
@@ -102,10 +105,15 @@ class TrainingSessionEntryDlg(dialog.DialogBase):
         start_x = (dlg_w - total_w) // 2
         btn_y = self.POS_SIZE[3] - self.MARGIN - self.BUTTON_HEIGHT
 
-        self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, Label='Delete')
+        self.btn_delete = self.add_button('BtnDelete', start_x, btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                         Label='Delete',
+                                         BackgroundColor=0xC62828, TextColor=0xFFFFFF, FontWeight=150)
         self.add_action_listener(self.btn_delete, self._on_delete)
-        self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT)
-        self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, Label='Save', DefaultButton=False)
+        self.add_cancel('BtnCancel', start_x + (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT,
+                       BackgroundColor=0x808080, TextColor=0xFFFFFF, FontWeight=150)
+        self.btn_save = self.add_button('BtnSave', start_x + 2 * (btn_width + gap), btn_y, btn_width, self.BUTTON_HEIGHT, 
+                                       Label='Save', DefaultButton=False,
+                                       BackgroundColor=0x2E7D32, TextColor=0xFFFFFF, FontWeight=150)
         self.add_action_listener(self.btn_save, self._on_save)
 
     def commit(self) -> dict:
